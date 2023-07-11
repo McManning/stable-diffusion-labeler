@@ -14,6 +14,9 @@ import regex from '@iconify/icons-mdi/regex';
 
 // TODO: Replace with a round edged icon. Didn't find a good one on iconify.
 import replaceAll from '@iconify/icons-codicon/replace';
+import find from '@iconify/icons-material-symbols/search-rounded';
+import project from '@iconify/icons-material-symbols/science-outline';
+import sketch from '@iconify/icons-material-symbols/draw-outline-rounded';
 
 /* Iconify icons used by this app */
 
@@ -22,6 +25,9 @@ const icons: Record<string, any> = {
   listView,
   regex,
   replaceAll,
+  find,
+  project,
+  sketch,
 }
 
 export function loadAllIcons() {
