@@ -2,39 +2,32 @@ import { useDispatch } from "react-redux";
 import { useAppSelector } from ".";
 import { useEffect, useState } from "react";
 import { setSearchFilter } from "@/features/workspace";
-import { searchTags } from "@/utils";
+import { isMatch, searchTags } from "@/utils";
 
 export function useActiveWorkspace() {
   const workspace = useAppSelector((s) => s.workspace.activeWorkspace);
-  const allImages = useAppSelector((s) => s.workspace.activeWorkspace?.images ?? []);
-  const filter = useAppSelector((s) => s.workspace.filter);
+  const images = useAppSelector((s) => s.workspace.activeWorkspace?.images ?? []);
+  const search = useAppSelector((s) => s.workspace.search);
+  const replace = useAppSelector((s) => s.workspace.replace);
   const dispatch = useDispatch();
 
-  let images = allImages;
-  if (filter?.terms) {
-    images = images.filter((img) => searchTags(filter.terms ?? '', img.tags));
+  // Apply search filters
+  let filteredImages = images;
+  if (search.terms.length > 0) {
+    filteredImages = filteredImages.filter((img) => isMatch(img, search))
   }
 
-  if (filter?.untagged) {
-    images = images.filter((img) => img.tags.length < 1);
-  }
+  // Untagged image filtering is a common search, so this is
+  // also tracked independently.
+  const untaggedImages = images.filter((img) => img.tags.length < 1);
 
   return {
     workspace,
     images,
+    filteredImages,
+    untaggedImages,
 
-    // Search / filtering
-    search: filter?.terms,
-
-    setSearch: (terms?: string) => dispatch(setSearchFilter({
-      ...filter,
-      terms
-    })),
-
-    untaggedOnly: filter?.untagged,
-    setUntaggedOnly: (untagged?: boolean) => dispatch(setSearchFilter({
-      ...filter,
-      untagged
-    })),
+    search,
+    replace,
   }
 }

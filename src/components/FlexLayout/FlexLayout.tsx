@@ -1,29 +1,34 @@
+
 import React, { useState } from 'react';
 import { Layout, Model, TabNode } from "flexlayout-react";
-import { Button, Icon } from '@osuresearch/ui';
-import { Canvas } from '@/components/Canvas';
+import { Box, alpha, styled } from '@mui/material';
+import { Icon } from '@osuresearch/ui';
 
 import { ImageInfoPanel } from '@/panels/TaggingPanel';
 import { GlobalTagsPanel } from '@/panels/GlobalTagsPanel';
 import { BooruTagsPanel } from '@/panels/BooruTagsPanel';
 
-import { Workspace } from '@/panels/Workspace';
+import { ProjectPanel } from '@/panels/ProjectPanel';
 import { SettingsPanel } from '@/panels/SettingsPanel';
 
 import { PromptPanel } from '@/panels/PromptPanel';
 import { ControlNetPanel } from '@/panels/ControlNetPanel';
 import { LoRAPanel } from '@/panels/LoRAPanel';
 import { SamplerPanel } from '@/panels/SamplerPanel';
-import { Box, alpha, styled } from '@mui/material';
+import { SearchPanel } from '@/panels/SearchPanel';
+
+import { Canvas } from '@/components/Canvas';
 
 import './FlexLayout.css';
 
 // Connection between FlexLayout CSS variables and the MUI theme system
 // TODO: Clean this up further. Remove the --color-N values and just assign
 // directly (some are also used in the base CSS file)
-const Container = styled(Box)(({ theme }) => ({
+const Root = styled(Box)(({ theme }) => ({
+  position: 'relative',
   width: '100%',
-  height: '100%',
+  // height: 'calc(100vh - 40px)', // Account for the header bar.
+  height: '100vh',
 
   '--color-1': '#374151', // 'var(--rui-surface-subtle)', /* dividers */
   '--color-2':  theme.palette.background.default, // 'var(--rui-surface-subtle)', /* toolbar button hover */
@@ -114,10 +119,15 @@ export function FlexLayout(props: FlexLayoutProps) {
           children: [
             {
               type: 'tab',
-              name: 'Workspace',
-              component: 'workspace',
+              name: 'Project',
+              component: 'project',
+            },
+            {
+              type: 'tab',
+              name: 'Search',
+              component: 'search',
             }
-          ]
+          ],
         },
         {
           type: 'row',
@@ -196,7 +206,8 @@ export function FlexLayout(props: FlexLayoutProps) {
     const component = node.getComponent();
 
     const mapping: Record<string, any> = {
-      workspace: Workspace,
+      project: ProjectPanel,
+      search: SearchPanel,
       canvas: Canvas,
       tagging: ImageInfoPanel,
       booruTags: BooruTagsPanel,
@@ -217,7 +228,7 @@ export function FlexLayout(props: FlexLayoutProps) {
   }
 
   return (
-    <Container>
+    <Root>
       <Layout
         supportsPopout={false}
         icons={{
@@ -227,6 +238,6 @@ export function FlexLayout(props: FlexLayoutProps) {
         factory={factory}
         realtimeResize
       />
-    </Container>
+    </Root>
   )
 }

@@ -1,51 +1,55 @@
-import { Box, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Stack, TextField, ToggleButton } from "@mui/material";
 
-import SearchIcon from '@mui/icons-material/Search';
+import { ChangeEvent, useState } from "react";
+import { Box, FormControl, IconButton, InputAdornment, OutlinedInput, Stack, TextField, ToggleButton } from "@mui/material";
 import { Icon } from "@osuresearch/iconography";
-import { useState } from "react";
+import { useDispatch } from "react-redux";
 
-export type SearchValue = {
-  text: string
-  regex: boolean
-}
-
-export type ReplaceValue = {
-  text: string
-}
+import { useAppSelector } from "@/hooks";
+import { setReplaceFilter, setSearchFilter } from "@/features/workspace";
 
 export interface SearchReplaceFieldProps {
-  onSearch: (search: SearchValue) => void;
-  onPreviewReplace: (search: SearchValue, replace: ReplaceValue) => void;
-  onReplace: (search: SearchValue, replace: ReplaceValue) => void;
+
 }
 
-export function SearchReplaceField({ onSearch, onPreviewReplace, onReplace }: SearchReplaceFieldProps) {
-  const [search, setSearch] = useState<SearchValue>({ text: '', regex: false });
-  const [replace, setReplace] = useState<ReplaceValue>({ text: '' });
+export function SearchReplaceField({ }: SearchReplaceFieldProps) {
+  const search = useAppSelector((s) => s.workspace.search);
+  const replace = useAppSelector((s) => s.workspace.replace);
+  const dispatch = useDispatch();
 
-  const updateSearch = (newSearch: SearchValue) => {
-    if (search.text === newSearch.text && search.regex === newSearch.regex) {
+  const onToggleRegex = () => {
+    dispatch(setSearchFilter({
+      ...search, regex: !search.regex
+    }));
+  }
+
+  const onSearchTerms = (e: ChangeEvent<HTMLInputElement>) => {
+    const terms = e.currentTarget.value;
+    if (terms === search.terms) {
       return;
     }
 
-    setSearch(newSearch);
-
-    onSearch(newSearch);
-    if (replace.text) {
-      onPreviewReplace(newSearch, replace);
-    }
+    // TODO: Throttle?
+    dispatch(setSearchFilter({
+      ...search,
+      terms
+    }));
   }
 
-  const updateReplace = (newReplace: ReplaceValue) => {
-    setReplace(newReplace);
-
-    if (replace.text !== newReplace.text) {
-      onPreviewReplace(search, newReplace);
+  const onReplaceTerms = (e: ChangeEvent<HTMLInputElement>) => {
+    const terms = e.currentTarget.value;
+    if (terms === replace.terms) {
+      return;
     }
+
+    // TODO: Throttle?
+    dispatch(setReplaceFilter({
+      ...replace,
+      terms
+    }));
   }
 
-  const toggleRegex = () => {
-    updateSearch({ ...search, regex: !search.regex })
+  const onApplyReplace = () => {
+    alert('todo!')
   }
 
   return (
@@ -55,6 +59,8 @@ export function SearchReplaceField({ onSearch, onPreviewReplace, onReplace }: Se
           id="search-tags"
           aria-label="Search"
           placeholder="Search"
+          value={search.terms}
+          onChange={onSearchTerms}
           endAdornment={
             <InputAdornment component={Box} position="end" mr={-1}>
               <ToggleButton
@@ -62,8 +68,8 @@ export function SearchReplaceField({ onSearch, onPreviewReplace, onReplace }: Se
                 aria-label="Toggle regex"
                 size="small"
                 sx={{ padding: '2px' }}
-                selected={search.regex}
-                onClick={toggleRegex}
+                selected={search?.regex}
+                onClick={onToggleRegex}
               >
                 <Icon name="regex" size={24} />
               </ToggleButton>
@@ -79,11 +85,17 @@ export function SearchReplaceField({ onSearch, onPreviewReplace, onReplace }: Se
           size="small"
           aria-label="Replace"
           placeholder="Replace"
+          value={replace.terms}
+          onChange={onReplaceTerms}
           hiddenLabel
           fullWidth
         />
 
-        <IconButton type="button" aria-label="Replace all">
+        <IconButton
+          type="button"
+          aria-label="Replace all"
+          onClick={onApplyReplace}
+        >
           <Icon name="replaceAll" size={26} />
         </IconButton>
       </Stack>

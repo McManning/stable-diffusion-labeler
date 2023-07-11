@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+/**
+ * Operations that can be undone/redone in the workspace
+ */
 export type OperationStack = {
   current: number
   operations: Operation[]
@@ -8,7 +11,9 @@ export type OperationStack = {
 export type WorkspaceState = {
   activeWorkspace?: Workspace
   activeImage?: TrainingImage
-  filter?: ImageSearchFilter
+
+  search: ImageSearchFilter
+  replace: ImageReplaceFilter
 
   operations: OperationStack
 }
@@ -17,6 +22,13 @@ const initialState: WorkspaceState = {
   operations: {
     current: 0,
     operations: []
+  },
+  search: {
+    terms: '',
+    regex: false,
+  },
+  replace: {
+    terms: ''
   }
 };
 
@@ -44,7 +56,11 @@ export const workspace = createSlice({
     },
 
     setSearchFilter: (state, action: PayloadAction<ImageSearchFilter | undefined>) => {
-      state.filter = action.payload;
+      state.search = action.payload;
+    },
+
+    setReplaceFilter: (state, action: PayloadAction<ImageReplaceFilter | undefined>) => {
+      state.replace = action.payload;
     },
 
     deleteImages: (state, image: PayloadAction<TrainingImage[]>) => {
@@ -103,6 +119,7 @@ export const {
   setActiveWorkspace,
   setActiveImage,
   setSearchFilter,
+  setReplaceFilter,
   updateImage,
   updateWorkspace,
   deleteImages,
