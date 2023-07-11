@@ -1,5 +1,5 @@
 
-import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { Box, CssBaseline, Stack, ThemeProvider, createTheme } from '@mui/material';
 import { Provider as ReduxProvider } from 'react-redux';
 import { ipcMain } from 'electron';
 import '@fontsource-variable/inter';
@@ -10,6 +10,8 @@ import { FlexLayout } from '@/components/FlexLayout';
 // import './App.css';
 // import './App.rui.css';
 import { theme } from './theme';
+import { Sidebar } from '@/components/Sidebar';
+import { Header } from '@/components/Header';
 
 export default function App() {
   const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -40,12 +42,11 @@ export default function App() {
     <ReduxProvider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline enableColorScheme />
-        <Box sx={{
-          width: '100vw',
-          height: '100vh'
-        }}>
+        {/* <Header /> */}
+        <Stack direction="row">
+          <Sidebar />
           <FlexLayout />
-        </Box>
+        </Stack>
       </ThemeProvider>
     </ReduxProvider>
   );

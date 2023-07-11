@@ -76,6 +76,19 @@ export const theme = createTheme({
         variant: 'contained',
       }
     },
+    MuiTooltip: {
+      styleOverrides: {
+        // TODO: Margin between the tooltip and the target.
+        // Not sure what class it's in
+        tooltip: {
+          fontSize: 14,
+          backgroundColor: 'black',
+        },
+        arrow: {
+          color: 'black',
+        }
+      }
+    },
     MuiAppBar: {
       defaultProps: {
         color: 'inherit',
