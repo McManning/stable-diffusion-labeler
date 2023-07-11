@@ -15,9 +15,16 @@ type BooruTag = {
 /** Mapping of category to tag(s) */
 type GlobalTags = Record<string, string[]>;
 
+/** Rules for searching for images */
 type ImageSearchFilter = {
-  terms?: string
+  terms: string
+  regex: boolean
   untagged?: boolean
+}
+
+/** Rules for applying replacements to images */
+type ImageReplaceFilter = {
+  terms: string
 }
 
 type TrainingImage = {
