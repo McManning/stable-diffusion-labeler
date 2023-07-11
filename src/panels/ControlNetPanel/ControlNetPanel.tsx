@@ -1,8 +1,10 @@
-import { Group, Stack, Item, SelectField, SwitchField, Text, Alert, useRUIForm } from "@osuresearch/ui";
+import { SelectField } from "@/components/SelectField";
 import { SliderField } from "@/components/SliderField";
+import { Stack, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { FormProvider, useForm } from "react-hook-form";
 
 export function ControlNetPanel() {
-  const { register, watch } = useRUIForm({
+  const methods = useForm({
     defaultValues: {
       // TODO: Grab from Redux
       model: 'scribble_xdog',
@@ -11,54 +13,54 @@ export function ControlNetPanel() {
       end: 0.15,
       xdogThreshold: 32,
     }
-  })
+  });
+
+  const { watch } = methods;
 
   const useXDoG = watch('model') === 'scribble_xdog';
 
   return (
-    <Stack align="stretch" p="md">
-      <Group align="center" justify="apart" w="100%">
-        <SelectField
-          aria-label="Model" w="300px"
-          {...register('model')}
-        >
-        <Item key="canny">Canny</Item>
-          <Item key="mlsd">MLSD</Item>
-          <Item key="scribble_xdog">Scribble XDoG</Item>
+    <FormProvider {...methods}>
+      <Stack padding={2} gap={1}>
+
+        <SelectField name="model" label="Model">
+          <MenuItem value="canny">Canny</MenuItem>
+          <MenuItem value="mlsd">MLSD</MenuItem>
+          <MenuItem value="scribble_xdog">Scribble XDoG</MenuItem>
         </SelectField>
-      </Group>
 
-      <SliderField label="Weight"
-        step={0.05}
-        minValue={0}
-        maxValue={2}
-        {...register('weight')}
-      />
-
-      <Group align="stretch">
-        <SliderField label="Start"
-          step={0.01}
-          minValue={0}
-          maxValue={1}
-          {...register('start')}
+        <SliderField name="weight"
+          label="Weight"
+          step={0.05}
+          min={0}
+          max={2}
         />
 
-        <SliderField label="End"
-          step={0.01}
-          minValue={0}
-          maxValue={1}
-          {...register('end')}
-        />
-      </Group>
+        <Stack direction="row" gap={4}>
+          <SliderField name="start"
+            label="Start"
+            step={0.01}
+            min={0}
+            max={1}
+          />
 
-      {useXDoG &&
-        <SliderField label="XDoG threshold"
-          description="Control the level of detail for the EXtended Difference of Gaussian edge detection algorithm"
-          minValue={1}
-          maxValue={64}
-          {...register('xdogThreshold')}
-        />
-      }
-    </Stack>
+          <SliderField name="end"
+            label="End"
+            step={0.01}
+            min={0}
+            max={1}
+          />
+        </Stack>
+
+        {useXDoG &&
+          <SliderField name="xdogThreshold"
+            label="XDoG threshold"
+            description="Control the level of detail for the EXtended Difference of Gaussian edge detection algorithm"
+            min={1}
+            max={64}
+          />
+        }
+      </Stack>
+    </FormProvider>
   )
 }

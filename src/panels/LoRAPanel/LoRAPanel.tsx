@@ -1,17 +1,19 @@
-import { Group, Stack, Item, SelectField, SwitchField, Text, Alert, useRUIForm } from "@osuresearch/ui";
 import { SliderField } from "@/components/SliderField";
+import { Stack } from "@mui/material";
+import { FormProvider, useForm } from "react-hook-form";
 
 export function LoRAPanel() {
-  // const { register, watch } = useRUIForm({
-  //   defaultValues: {
-  //     // TODO: Grab from Redux.
-  //     // This list is dynamic.
-  //     ATv4: 0.6,
-  //     Steampunk: 0,
-  //     Cogpunk: 0,
-  //     Tentacles: 0,
-  //   }
-  // })
+  const methods = useForm({
+    defaultValues: {
+      // TODO: Grab from Redux.
+      // This list is dynamic.
+      ATv4: 0.6,
+      Steampunk: 0,
+      Cogpunk: 0,
+      Tentacles: 0,
+      Trypophobia: 0,
+    }
+  })
 
   const options = [
     {
@@ -30,6 +32,11 @@ export function LoRAPanel() {
       prompt: '<lyco:PunkBundleAI:{weight}> dieselpunkai'
     },
     {
+      label: 'Tentacles',
+      weight: 0,
+      prompt: '<lyco:HorrorBundlev4:{weight}> TrypophobiaAI'
+    },
+    {
       label: 'Trypophobia',
       weight: 0,
       prompt: '<lyco:HorrorBundlev4:{weight}> TrypophobiaAI'
@@ -37,18 +44,19 @@ export function LoRAPanel() {
   ]
 
   return (
-    <Stack align="stretch" p="md">
-      {options.map((opt) =>
-        <SliderField
-          key={opt.label}
-          name={opt.label}
-          label={opt.label}
-          step={0.05}
-          minValue={0}
-          maxValue={1.5}
-          value={opt.weight}
-        />
-      )}
-    </Stack>
+    <FormProvider {...methods}>
+      <Stack padding={2} gap={1}>
+        {options.map((opt) =>
+          <SliderField
+            key={opt.label}
+            name={opt.label}
+            label={opt.label}
+            step={0.05}
+            min={0}
+            max={1.5}
+          />
+        )}
+      </Stack>
+    </FormProvider>
   )
 }

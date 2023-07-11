@@ -1,3 +1,4 @@
+import { SelectField } from "@/components/SelectField";
 import { SliderField } from "@/components/SliderField";
 import { Divider, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Stack, Switch, Typography } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
@@ -15,7 +16,7 @@ export function SamplerPanel() {
       batchCount: 4,
       batchSize: 1,
     }
-  })
+  });
 
   const { register, watch } = methods;
 
@@ -29,37 +30,18 @@ export function SamplerPanel() {
   return (
     <FormProvider {...methods}>
       <Stack padding={2} gap={1}>
-        {/* <Stack>
-          <SelectField aria-label="Model" w="300px"
-            {...register('model')}
-          >
-            <Item key="flat2DAnimerge_v20">flat2DAnimerge_v20</Item>
-            <Item key="other">Something else</Item>
+        <Stack direction="row" justifyContent="space-between">
+          <SelectField name="model" label="Model">
+            <MenuItem value="flat2DAnimerge_v20">flat2DAnimerge_v20</MenuItem>
+            <MenuItem value="other">Something else</MenuItem>
           </SelectField>
 
-          <SwitchField label="Use VAE" {...register('useVAE')} />
-        </Stack> */}
-
-        <Stack direction="row" justifyContent="space-between">
-          <FormControl sx={{ minWidth: 120 }} size="small">
-            <InputLabel id="model-label">Model</InputLabel>
-            <Select
-              labelId="model-label"
-              id="model"
-              label="Model"
-            >
-              <MenuItem value="flat2DAnimerge_v20">flat2DAnimerge_v20</MenuItem>
-              <MenuItem value="other">Something else</MenuItem>
-            </Select>
-          </FormControl>
-
           <FormControlLabel
-            value="start"
             control={<Switch color="primary" />}
             label="Use VAE"
             labelPlacement="start"
+            {...register('useVAE')}
           />
-
         </Stack>
 
         <SliderField label="Sampling steps"

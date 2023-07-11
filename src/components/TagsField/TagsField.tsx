@@ -3,7 +3,7 @@ import { forwardRef, useEffect, useRef, useState } from 'react';
 import { WithContext as ReactTags } from 'react-tag-input';
 
 import styles from './index.module.css';
-import { Box, BoxProps, FormControl, FormHelperText, Input, InputBase, InputLabel, OutlinedInput, TextField } from '@mui/material';
+import { Box, BoxProps, FormControl, FormHelperText, Input, InputBase, InputLabel, OutlinedInput, TextField, Typography } from '@mui/material';
 
 import { styled, alpha } from '@mui/material/styles';
 
@@ -35,6 +35,7 @@ const Tags = styled(Box)<TagsProps>(({ focused, theme }) => ({
   borderRadius: 3,
   display: 'inline-block',
   outlineOffset: '0',
+  width: '100%',
 
   // TODO: Replicating MUI's input styles without using their input is... painful.
   // I'm not seeing an equivalent to RUI's <Interactive /> for arbitrary reusable
@@ -213,7 +214,9 @@ export function TagsField(props: TagsFieldProps) {
 
   return (
     <Tags focused={focused}>
-      <label htmlFor={name}>{label}</label>
+      <Typography component="label" htmlFor={name} fontSize={12}>
+        {label}
+      </Typography>
       <ReactTags
         id={name}
         name={name}

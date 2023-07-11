@@ -6,6 +6,8 @@ import { Controller, useFormContext } from 'react-hook-form';
 export interface SliderFieldProps extends HTMLAttributes<HTMLInputElement> {
   name: string
   label: string
+  description?: React.ReactNode
+
   min?: number
   max?: number
   step?: number
@@ -19,7 +21,9 @@ export interface SliderFieldProps extends HTMLAttributes<HTMLInputElement> {
 export function SliderField(props: SliderFieldProps) {
   const { control } = useFormContext();
 
-  const { min, max, step, label, name } = props;
+  const { min, max, step, label, name, description } = props;
+
+  // TODO: aria describedby for description content
 
   return (
     <Controller
@@ -62,6 +66,9 @@ export function SliderField(props: SliderFieldProps) {
               />
             </Grid>
           </Grid>
+          {description &&
+            <Typography>{description}</Typography>
+          }
         </Box>
       )}
     />

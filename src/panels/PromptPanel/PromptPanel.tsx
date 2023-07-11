@@ -1,22 +1,33 @@
 import { Panel } from "@/components/Panel";
+import { SelectField } from "@/components/SelectField";
 import { TagsField } from "@/components/TagsField";
-import { Stack, Paper } from "@mui/material";
+import { Stack, Paper, MenuItem } from "@mui/material";
+import { FormProvider, useForm } from "react-hook-form";
 
 export function PromptPanel() {
+  const methods = useForm({
+    defaultValues: {
+      positive: '',
+      negative: '',
+    }
+  });
+
   return (
     <Panel>
-      {/* <Group align="center" justify="apart" w="100%">
-        <SelectField name="template" aria-label="Template" placeholder="Use a template" w="300px">
-          <Item>Foo</Item>
-          <Item>None</Item>
-        </SelectField>
+      <FormProvider {...methods}>
+        <Stack gap={2} p={2} width="100%">
 
-        <SwitchField name="editable" label="Editable" />
-      </Group> */}
+          <Stack direction="row">
+            <SelectField name="template" label="Template">
+              <MenuItem value="foo">Foo</MenuItem>
+              <MenuItem value="bar">Bar</MenuItem>
+            </SelectField>
+          </Stack>
 
-      <TagsField name="positive" label="Positive" />
-
-      {/* <TagsField name="negative" label="Negative" /> */}
+          <TagsField name="positive" label="Positive" />
+          <TagsField name="negative" label="Negative" />
+        </Stack>
+      </FormProvider>
     </Panel>
   )
 }
