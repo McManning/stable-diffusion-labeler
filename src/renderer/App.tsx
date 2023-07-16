@@ -12,6 +12,7 @@ import { FlexLayout } from '@/components/FlexLayout';
 import { theme } from './theme';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
+import { Doodle } from '@/components/Doodle';
 
 export default function App() {
   const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
@@ -45,7 +46,8 @@ export default function App() {
         {/* <Header /> */}
         <Stack direction="row">
           <Sidebar />
-          <FlexLayout />
+          <Doodle />
+          {/* <FlexLayout /> */}
         </Stack>
       </ThemeProvider>
     </ReduxProvider>

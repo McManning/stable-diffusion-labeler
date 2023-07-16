@@ -45,9 +45,20 @@ export function arraysEqual(a: any[], b: any[]) {
   return true;
 }
 
-export function searchTags(search: string, tags: string[]): string | undefined {
-  const pattern = `.*${search.split(' ').join('.*')}.*`;
-  const re = new RegExp(pattern);
+export function searchTags(search: ImageSearchFilter, tags: string[]) {
+  const pattern = `.*${search.terms.split(' ').join('.*')}.*`;
+  const re = new RegExp(pattern, 'gi');
 
   return tags.find((tag) => tag.search(re) >= 0);
+}
+
+export function isMatch(image: TrainingImage, search: ImageSearchFilter) {
+  const hasTagMatches = search.terms.length > 0 && searchTags(search, image.tags) !== undefined;
+  const hasUntaggedMatch = search.untagged && image.tags.length < 1;
+
+  return hasUntaggedMatch || hasTagMatches;
+}
+
+export function filterBySearch(images: TrainingImage[], search: ImageSearchFilter) {
+  return images.filter((img) => isMatch(img, search));
 }

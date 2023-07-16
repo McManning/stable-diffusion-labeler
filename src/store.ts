@@ -6,6 +6,7 @@ import { reducer as canvas } from '@/features/canvas';
 import { reducer as dataset } from '@/features/dataset';
 import { reducer as queue } from '@/features/queue';
 import { reducer as workspace } from '@/features/workspace';
+import { reducer as doodle } from '@/features/doodle';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     dataset,
     queue,
     workspace,
+    doodle,
   },
 });
 

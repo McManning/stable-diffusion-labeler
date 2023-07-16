@@ -18,6 +18,12 @@ import find from '@iconify/icons-material-symbols/search-rounded';
 import project from '@iconify/icons-material-symbols/science-outline';
 import sketch from '@iconify/icons-material-symbols/draw-outline-rounded';
 
+// Doodle tools
+import pen from '@iconify/icons-mdi/grease-pencil';
+import eraser from '@iconify/icons-mdi/eraser';
+import images from '@iconify/icons-mdi/image-multiple-outline';
+import pan from '@iconify/icons-mdi/hand-back-right';
+
 /* Iconify icons used by this app */
 
 const icons: Record<string, any> = {
@@ -28,6 +34,10 @@ const icons: Record<string, any> = {
   find,
   project,
   sketch,
+  eraser,
+  pen,
+  images,
+  pan,
 }
 
 export function loadAllIcons() {
