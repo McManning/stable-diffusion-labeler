@@ -9,6 +9,8 @@ export type OperationStack = {
 }
 
 export type WorkspaceState = {
+  activeTab: 'project' | 'search' | 'doodle';
+
   activeWorkspace?: Workspace
   activeImage?: TrainingImage
 
@@ -19,6 +21,7 @@ export type WorkspaceState = {
 }
 
 const initialState: WorkspaceState = {
+  activeTab: 'project',
   operations: {
     current: 0,
     operations: []
@@ -39,6 +42,10 @@ export const workspace = createSlice({
   name: 'workspace',
   initialState,
   reducers: {
+    setActiveTab: (state, action: PayloadAction<WorkspaceState['activeTab']>) => {
+      state.activeTab = action.payload;
+    },
+
     setActiveWorkspace: (state, current: PayloadAction<Workspace | undefined>) => {
       state.activeWorkspace = current.payload;
     },
@@ -116,6 +123,7 @@ export const workspace = createSlice({
 });
 
 export const {
+  setActiveTab,
   setActiveWorkspace,
   setActiveImage,
   setSearchFilter,

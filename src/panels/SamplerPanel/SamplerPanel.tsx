@@ -4,7 +4,7 @@ import { Divider, FormControl, FormControlLabel, InputLabel, MenuItem, Select, S
 import { FormProvider, useForm } from "react-hook-form";
 
 export function SamplerPanel() {
-  const methods = useForm({
+  const methods = useForm<SamplerSettings>({
     defaultValues: {
       // TODO: Grab from Redux
       useVAE: false,

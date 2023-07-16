@@ -4,7 +4,7 @@ import { Stack, FormControl, InputLabel, Select, MenuItem } from "@mui/material"
 import { FormProvider, useForm } from "react-hook-form";
 
 export function ControlNetPanel() {
-  const methods = useForm({
+  const methods = useForm<ControlNetSettings>({
     defaultValues: {
       // TODO: Grab from Redux
       model: 'scribble_xdog',

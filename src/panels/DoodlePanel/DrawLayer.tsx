@@ -125,11 +125,16 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
     dispatch(setIsDrawing(false));
   }
 
+  // Only listen for events while using draw tools.
+  // This'll let other layers (e.g. references) be manipulated when
+  // we're in the appropriate tool mode for that.
+  const listening = tool === DoodleTool.Pen || tool === DoodleTool.Eraser;
+
   // Rect is used for receiving mouse events for the draw tool while active.
   return (
     <Layer
       ref={mergeRefs(ref, drawLayerRef)}
-      listening
+      listening={listening}
       onMouseDown={onMouseDown}
       onMouseMove={onDrag}
       onMouseUp={onStopDrawing}

@@ -88,3 +88,32 @@ type Operation = {
   /** Next state after the operation. Depends on operation type */
   next: any
 }
+
+type SamplerSettings = {
+  useVAE: boolean
+  width: number
+  height: number
+  steps: number
+  model: string
+  upscale: number
+  batchCount: number
+  batchSize: number
+}
+
+type ControlNetSettings = {
+  model: string
+  weight: number
+  start: number
+  end: number
+  xdogThreshold?: number
+}
+
+type LoRAInfo = {
+  label: string
+  weight: number
+  prompt: string
+}
+
+type LoRASettings = {
+  lora: Record<string, LoRAInfo>;
+}

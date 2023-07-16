@@ -23,6 +23,7 @@ import pen from '@iconify/icons-mdi/grease-pencil';
 import eraser from '@iconify/icons-mdi/eraser';
 import images from '@iconify/icons-mdi/image-multiple-outline';
 import pan from '@iconify/icons-mdi/hand-back-right';
+import leftOutline from '@iconify/icons-mdi/chevron-left-circle-outline';
 
 /* Iconify icons used by this app */
 
@@ -38,6 +39,7 @@ const icons: Record<string, any> = {
   pen,
   images,
   pan,
+  leftOutline,
 }
 
 export function loadAllIcons() {

@@ -167,10 +167,10 @@ export function TagsField(props: TagsFieldProps) {
   ]
 
   const [tags, setTags] = useState<Tag[]>([
-    { id: 'Thailand', text: 'Thailand' },
-    { id: 'India', text: 'India' },
-    { id: 'Vietnam', text: 'Vietnam' },
-    { id: 'Turkey', text: 'Turkey' },
+    // { id: 'Thailand', text: 'Thailand' },
+    // { id: 'India', text: 'India' },
+    // { id: 'Vietnam', text: 'Vietnam' },
+    // { id: 'Turkey', text: 'Turkey' },
   ]);
 
   useEffect(() => {

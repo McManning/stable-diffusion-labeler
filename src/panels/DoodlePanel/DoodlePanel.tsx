@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { useAppSelector } from '@/hooks';
 import { useElementSize } from "@/hooks/useElementSize";
-import { DoodleTool, selectId, setIsDrawing, setRegions, setScale } from '@/features/doodle';
+import { DoodleTool, PenSettings, selectId, setIsDrawing, setRegions, setScale } from '@/features/doodle';
 import { openContextMenu } from '@/features/settings';
 
 import { ReferenceLayer } from "./ReferenceLayer";
@@ -16,11 +16,12 @@ import { DrawLayer } from "./DrawLayer";
 import { Root } from "./Doodle.styles";
 import { Dropzone } from "./Dropzone";
 import { BoundaryLayer } from "./BoundaryLayer";
+import { GeneratedImages } from "./GeneratedImages";
 
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 3;
 
-export function Doodle() {
+export function DoodlePanel() {
   const stageRef = useRef<Konva.Stage>(null);
   const imageRef = useRef<Konva.Image>(null);
   const drawLayerRef = useRef<Konva.Layer>(null);
@@ -39,7 +40,7 @@ export function Doodle() {
 
   const regions = useAppSelector((s) => s.doodle.regions);
   const tool = useAppSelector((s) => s.doodle.tool);
-  const strokeWidth = useAppSelector((s) => s.doodle.thickness);
+  const toolSettings = useAppSelector((s) => s.doodle.toolSettings);
   const isDrawing = useAppSelector((s) => s.doodle.isDrawing);
   const scale = useAppSelector((s) => s.doodle.scale);
   const image = useAppSelector((s) => s.doodle.current);
@@ -154,7 +155,7 @@ export function Doodle() {
   return (
     <Root ref={ref}
       tool={tool}
-      strokeWidth={strokeWidth}
+      toolSettings={toolSettings[tool]}
       scale={scale}
     >
       <Dropzone>
@@ -174,7 +175,6 @@ export function Doodle() {
 
           onWheel={onZoom}
 
-
           onContextMenu={onContextMenu}
         >
           <ReferenceLayer ref={imageRef} />
@@ -182,6 +182,7 @@ export function Doodle() {
           <BoundaryLayer />
         </Stage>
         <Tools />
+        <GeneratedImages />
       </Dropzone>
     </Root>
   )

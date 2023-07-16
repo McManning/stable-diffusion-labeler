@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Model, TabNode } from "flexlayout-react";
 import { Box, alpha, styled } from '@mui/material';
 import { Icon } from '@osuresearch/ui';
@@ -16,8 +16,10 @@ import { ControlNetPanel } from '@/panels/ControlNetPanel';
 import { LoRAPanel } from '@/panels/LoRAPanel';
 import { SamplerPanel } from '@/panels/SamplerPanel';
 import { SearchPanel } from '@/panels/SearchPanel';
+import { DoodlePanel } from '@/panels/DoodlePanel';
 
 import { Canvas } from '@/components/Canvas';
+import { useAppSelector } from '@/hooks';
 
 import './FlexLayout.css';
 
@@ -99,108 +101,161 @@ export type FlexLayoutProps = {
  */
 export function FlexLayout(props: FlexLayoutProps) {
 
-  const [model, setModel] = useState(Model.fromJson({
-    global: {
-      // tabSetEnableTabStrip: false,
-      tabEnableRename: false,
-      tabEnableClose: false,
-      tabSetMinWidth: 100,
-      tabSetMinHeight: 100,
-      splitterSize: 2,
-      splitterExtra: 6,
-    },
-    borders: [],
-    layout: {
-      type: 'row',
-      children: [
-        {
-          type: 'tabset',
-          weight: 30,
-          children: [
-            {
-              type: 'tab',
-              name: 'Project',
-              component: 'project',
-            },
-            {
-              type: 'tab',
-              name: 'Search',
-              component: 'search',
-            }
-          ],
+  const [model, setModel] = useState<Model>();
+
+  const activeTab = useAppSelector((s) => s.workspace.activeTab);
+
+  useEffect(() => {
+    if (activeTab === 'doodle') {
+      setModel(Model.fromJson({
+        global: {
+          // tabSetEnableTabStrip: false,
+          tabEnableRename: false,
+          tabEnableClose: false,
+          tabSetEnableMaximize: false,
+          tabSetMinWidth: 100,
+          tabSetMinHeight: 100,
+          splitterSize: 2,
+          splitterExtra: 6,
         },
-        {
+        borders: [],
+        layout: {
           type: 'row',
-          weight: 50,
           children: [
             {
+              type: 'row',
+              weight: 50,
+              children: [
+                {
+                  type: 'tabset',
+                  weight: 75,
+                  enableTabStrip: false,
+                  children: [
+                    {
+                      type: 'tab',
+                      name: 'Doodle',
+                      component: 'doodle'
+                    },
+                  ]
+                },
+              ],
+            },
+            {
               type: 'tabset',
-              weight: 75,
+              weight: 20,
               children: [
                 {
                   type: 'tab',
-                  name: 'Canvas',
-                  component: 'canvas'
+                  name: 'Sampler',
+                  component: 'sampler',
                 },
                 {
                   type: 'tab',
-                  name: 'Settings',
-                  component: 'settings',
-                }
-              ]
-            },
-            {
-              type: 'tabset',
-              weight: 25,
-              children: [
-                {
-                  type: 'tab',
-                  name: 'Tagging',
-                  component: 'tagging'
+                  name: 'ControlNet',
+                  component: 'controlNet',
                 },
                 {
                   type: 'tab',
-                  name: 'Prompt',
-                  component: 'prompt',
+                  name: 'LoRA / LyCORA',
+                  component: 'lora',
                 },
               ]
-            }
-          ],
-        },
-        {
-          type: 'tabset',
-          weight: 20,
-          children: [
-            // {
-            //   type: 'tab',
-            //   name: 'Booru tags',
-            //   component: 'booruTags',
-            // },
-            // {
-            //   type: 'tab',
-            //   name: 'Global tags',
-            //   component: 'globalTags',
-            // },
-            {
-              type: 'tab',
-              name: 'Sampler',
-              component: 'sampler',
-            },
-            {
-              type: 'tab',
-              name: 'ControlNet',
-              component: 'controlNet',
-            },
-            {
-              type: 'tab',
-              name: 'LoRA / LyCORA',
-              component: 'lora',
             },
           ]
-        },
-      ]
+        }
+      }));
     }
-  }));
+    else {
+      // Everything else is the same model for now
+      setModel(Model.fromJson({
+        global: {
+          // tabSetEnableTabStrip: false,
+          tabEnableRename: false,
+          tabEnableClose: false,
+          tabSetMinWidth: 100,
+          tabSetMinHeight: 100,
+          splitterSize: 2,
+          splitterExtra: 6,
+        },
+        borders: [],
+        layout: {
+          type: 'row',
+          children: [
+            {
+              type: 'tabset',
+              weight: 20,
+              children: [
+                {
+                  type: 'tab',
+                  name: 'Project',
+                  component: 'project',
+                },
+                {
+                  type: 'tab',
+                  name: 'Search',
+                  component: 'search',
+                }
+              ],
+            },
+            {
+              type: 'row',
+              weight: 80,
+              children: [
+                {
+                  type: 'tabset',
+                  weight: 75,
+                  children: [
+                    {
+                      type: 'tab',
+                      name: 'Canvas',
+                      component: 'canvas'
+                    },
+                    {
+                      type: 'tab',
+                      name: 'Settings',
+                      component: 'settings',
+                    }
+                  ]
+                },
+                {
+                  type: 'tabset',
+                  weight: 25,
+                  children: [
+                    {
+                      type: 'tab',
+                      name: 'Tagging',
+                      component: 'tagging'
+                    },
+                    {
+                      type: 'tab',
+                      name: 'Prompt',
+                      component: 'prompt',
+                    },
+                  ]
+                }
+              ],
+            },
+            // {
+            //   type: 'tabset',
+            //   weight: 20,
+            //   children: [
+            //     // {
+            //     //   type: 'tab',
+            //     //   name: 'Booru tags',
+            //     //   component: 'booruTags',
+            //     // },
+            //     // {
+            //     //   type: 'tab',
+            //     //   name: 'Global tags',
+            //     //   component: 'globalTags',
+            //     // },
+            //   ]
+            // },
+          ]
+        }
+      }));
+    }
+  }, [activeTab]);
 
   const factory = (node: TabNode) => {
     const component = node.getComponent();
@@ -217,6 +272,7 @@ export function FlexLayout(props: FlexLayoutProps) {
       controlNet: ControlNetPanel,
       lora: LoRAPanel,
       sampler: SamplerPanel,
+      doodle: DoodlePanel,
     };
 
     if (component && mapping[component]) {
@@ -224,6 +280,10 @@ export function FlexLayout(props: FlexLayoutProps) {
       return <Component />;
     }
 
+    return null;
+  }
+
+  if (!model) {
     return null;
   }
 

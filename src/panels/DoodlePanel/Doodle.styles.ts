@@ -1,18 +1,16 @@
-import { DoodleTool, doodle } from "@/features/doodle";
+import { DoodleTool, PenSettings, ToolSettings, doodle } from "@/features/doodle";
 import { Box, BoxProps, styled } from "@mui/material";
 
 export interface RootProps {
   tool: DoodleTool
-  strokeWidth: number
+  toolSettings: ToolSettings
   scale: number
 }
 
-// Executed every mouse down.
-// Not on scale change.
+// TODO: Optimize. This gets executed every mouse down
 function makePenCursor(strokeWidth: number, scale: number) {
-  // Editor: https://yoksel.github.io/url-encoder/
 
-  const size = strokeWidth * 0.5;
+  const size = strokeWidth * scale;
   const xpad = 0; // strokeWidth * 0.5;
 
   // the X is correct, the circle is not.
@@ -47,13 +45,13 @@ function makePenCursor(strokeWidth: number, scale: number) {
   return `url("data:image/svg+xml,${encoded}") ${size * 0.5} ${size * 0.5}, crosshair;`;
 }
 
-function computeCursor({ tool, strokeWidth, scale }: RootProps) {
+function computeCursor({ tool, toolSettings, scale }: RootProps) {
   if (tool === DoodleTool.References || tool === DoodleTool.Pan) {
     return 'grab';
   }
 
   if (tool === DoodleTool.Pen || tool === DoodleTool.Eraser) {
-    return makePenCursor(strokeWidth, scale);
+    return makePenCursor((toolSettings as PenSettings).thickness, scale);
   }
 
   return 'initial';
