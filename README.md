@@ -3,7 +3,7 @@
 
 Tooling to optimize my own workflow when training Stable Diffusion models and LoRA.
 
-This is an Electron app built with Material UI and designed to integrate with Auto1111's Stable Diffusion API and Kohya scripts for LoRA/LyCORA training.
+This is an Electron app built with Material UI and designed to integrate with Auto1111's Stable Diffusion API and Kohya scripts for LoRA/LyCORIS training.
 
 Inspired by tools like [BooruDatasetTagManager](https://github.com/starik222/BooruDatasetTagManager) and VSCode.
 

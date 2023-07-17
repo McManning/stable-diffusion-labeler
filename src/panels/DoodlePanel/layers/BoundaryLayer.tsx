@@ -12,11 +12,14 @@ const FILL_COLOR = 'rgba(0, 0, 0, 0.5)';
  * Anything outside the boundary will be dimmed out.
  */
 export const BoundaryLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
-  const width = useAppSelector((s) => s.doodle.boundaryWidth);
-  const height = useAppSelector((s) => s.doodle.boundaryHeight);
+  // const width = useAppSelector((s) => s.doodle.boundaryWidth);
+  // const height = useAppSelector((s) => s.doodle.boundaryHeight);
+
+  const width = useAppSelector((s) => s.generator.sampler.width);
+  const height = useAppSelector((s) => s.generator.sampler.height);
 
   return (
-    <Layer ref={ref} listening={false}>
+    <Layer id="boundary" ref={ref} listening={false}>
       <Rect
         x={0}
         y={0}

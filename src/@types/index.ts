@@ -94,6 +94,7 @@ type SamplerSettings = {
   width: number
   height: number
   steps: number
+  cfgScale: number
   model: string
   upscale: number
   batchCount: number
@@ -108,12 +109,62 @@ type ControlNetSettings = {
   xdogThreshold?: number
 }
 
-type LoRAInfo = {
+type BlendPrompt = {
   label: string
   weight: number
-  prompt: string
+  help?: string
+  positive?: string
+  negative?: string
 }
 
-type LoRASettings = {
-  lora: Record<string, LoRAInfo>;
+type PromptSettings = {
+  positive?: string
+  negative?: string
+}
+
+/**
+ * Other networks to blend into the results
+ */
+type BlendSettings = {
+  prompts: Record<string, BlendPrompt>;
+  // TODO: textual inversions, normalizers (FastNegativeV2), etc.
+}
+
+/**
+ * A template that defines a suite of settings for sampling / ControlNet / etc
+ * for a particular use case. E.g. character design, environment design, prop sheets.
+ */
+type GeneratorTemplate = {
+  /**
+   * Template name. E.g. "Character Design", "Prop Sheet"
+   */
+  name: string
+
+  prompt: PromptSettings
+  sampler: SamplerSettings
+  controlNet: ControlNetSettings
+  blend: BlendSettings
+}
+
+type IntegrationSettings = {
+  // TODO: RunPod, Drive, and other things?
+
+  /** Stable Diffusion Web UI API */
+  sdapi: string
+
+  /** Booru tags API */
+  booruApi: string
+}
+
+type GeneratedImage = {
+  id: string
+  src: string
+
+  /**
+   * Metadata blob that comes from Stable Diffusion WebUI
+   * for a generated image. Typically stringified JSON
+   */
+  info: string
+
+  type: 'preprocessed' | 'txt2img';
 }

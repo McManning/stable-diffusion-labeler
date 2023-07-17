@@ -56,10 +56,12 @@ type DoodleState = {
   scale: number
   brightness: number
 
-  current?: TrainingImage
   regions: Region[]
 
   references: ImageReference[]
+
+  preprocessedImageOpacity: number
+  generatedImageOpacity: number
 }
 
 const initialState: DoodleState = {
@@ -91,13 +93,16 @@ const initialState: DoodleState = {
 
   regions: [],
   references: [],
+
+  generatedImageOpacity: 1,
+  preprocessedImageOpacity: 0.4,
 };
 
 /**
  * Stateful information about the doodle canvas and what's currently being displayed
  */
 export const doodle = createSlice({
-  name: 'canvas',
+  name: 'doodle',
   initialState,
   reducers: {
     setImage: (state, current: PayloadAction<TrainingImage | undefined>) => {
@@ -110,7 +115,6 @@ export const doodle = createSlice({
       state.selectedId = undefined;
       state.brightness = 0;
       state.tool = DoodleTool.Pan;
-      state.thickness = 4;
     },
 
     setCanvasSize: (state, regions: PayloadAction<{ width: number, height: number }>) => {
@@ -142,6 +146,14 @@ export const doodle = createSlice({
 
     setBrightness: (state, brightness: PayloadAction<number>) => {
       state.brightness = brightness.payload;
+    },
+
+    setPreprocessedImageOpacity: (state, opacity: PayloadAction<number>) => {
+      state.preprocessedImageOpacity = opacity.payload;
+    },
+
+    setGeneratedImageOpacity: (state, opacity: PayloadAction<number>) => {
+      state.generatedImageOpacity = opacity.payload;
     },
 
     setTool: (state, mode: PayloadAction<DoodleTool>) => {
@@ -176,6 +188,8 @@ export const {
   selectId,
   setScale,
   setBrightness,
+  setPreprocessedImageOpacity,
+  setGeneratedImageOpacity,
   setIsDrawing,
   setTool,
   setToolSettings,

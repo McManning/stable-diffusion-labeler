@@ -6,7 +6,7 @@ import { useAppSelector } from '@/hooks';
 import { useDispatch } from 'react-redux';
 import { KonvaEventObject } from "konva/lib/Node";
 import { DoodleTool, setReferences, selectId } from "@/features/doodle";
-import { Reference } from "./Reference";
+import { Reference } from "../Reference";
 
 interface RectangleProps {
   shapeProps: any
@@ -108,7 +108,7 @@ export const ReferenceLayer = forwardRef<Konva.Image, {}>((_, ref) => {
   }, [brightness]);
 
   return (
-    <Layer ref={layerRef}>
+    <Layer id="reference" ref={layerRef}>
       {references.map((r, i) => (
         <Reference
           key={r.id}

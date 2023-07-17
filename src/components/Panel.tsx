@@ -1,12 +1,13 @@
-import { Box, BoxProps, styled } from "@mui/material";
+import { Stack, StackProps, styled } from "@mui/material";
 
-export interface PanelProps extends BoxProps {
+export interface PanelProps extends StackProps {
   focused?: boolean
 }
 
-export const Panel = styled(Box)<PanelProps>(({ focused, theme }) => ({
+export const Panel = styled(Stack)<PanelProps>(({ focused, theme }) => ({
+  justifyContent: 'start',
   backgroundColor: theme.palette.background.paper,
   height: '100%',
   width: '100%',
-  display: 'flex',
+  padding: 16,
 }));

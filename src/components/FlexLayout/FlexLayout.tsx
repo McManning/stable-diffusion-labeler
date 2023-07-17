@@ -13,7 +13,7 @@ import { SettingsPanel } from '@/panels/SettingsPanel';
 
 import { PromptPanel } from '@/panels/PromptPanel';
 import { ControlNetPanel } from '@/panels/ControlNetPanel';
-import { LoRAPanel } from '@/panels/LoRAPanel';
+import { BlendPanel } from '@/panels/BlendPanel';
 import { SamplerPanel } from '@/panels/SamplerPanel';
 import { SearchPanel } from '@/panels/SearchPanel';
 import { DoodlePanel } from '@/panels/DoodlePanel';
@@ -156,8 +156,18 @@ export function FlexLayout(props: FlexLayoutProps) {
                 },
                 {
                   type: 'tab',
-                  name: 'LoRA / LyCORA',
-                  component: 'lora',
+                  name: 'Blend',
+                  component: 'blend',
+                },
+                {
+                  type: 'tab',
+                  name: 'Prompt',
+                  component: 'prompt',
+                },
+                {
+                  type: 'tab',
+                  name: 'Settings',
+                  component: 'settings',
                 },
               ]
             },
@@ -270,7 +280,7 @@ export function FlexLayout(props: FlexLayoutProps) {
       settings: SettingsPanel,
       prompt: PromptPanel,
       controlNet: ControlNetPanel,
-      lora: LoRAPanel,
+      blend: BlendPanel,
       sampler: SamplerPanel,
       doodle: DoodlePanel,
     };

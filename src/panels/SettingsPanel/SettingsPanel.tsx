@@ -1,45 +1,53 @@
+import { Link, Stack, TextField, Typography } from "@mui/material";
+import { FormProvider, useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { useDeepCompareEffect } from "react-use";
+
 import { useAppSelector } from "@/hooks";
-import { Divider, ExternalLink, Heading, Stack, Text, TextField } from "@osuresearch/ui";
+import { SettingsState, updateIntegrations } from "@/features/settings";
+import { Panel } from "@/components/Panel";
 
 export function SettingsPanel() {
-  const settings = useAppSelector((s) => s.settings);
+  const integrations = useAppSelector((s) => s.settings.integrations);
+
+  const dispatch = useDispatch();
+
+  const methods = useForm<IntegrationSettings>({
+    mode: 'all',
+    defaultValues: integrations,
+  });
+
+  const { register, watch } = methods;
+
+  const changes = watch();
+  useDeepCompareEffect(() => {
+    dispatch(updateIntegrations(changes));
+  }, [changes]);
 
   return (
-    <Stack p="sm">
-      <Text fs="md">Integrations</Text>
+    <Panel gap={2}>
+      <Typography variant="h5">Integrations</Typography>
 
-      <Stack gap="xl" align="stretch">
-        <Text fs="sm" c="neutral-subtle">Settings for integrating with third party services</Text>
+      <Stack gap={4}>
+        <Typography>Settings for integrating with third party services</Typography>
 
         <TextField
-          name="sdapi"
+          {...register('sdapi')}
           label="Stable Diffusion API"
-          placeholder="http://localhost:7860/sdapi/v1"
-          value={settings.integrations.sdapi}
-          description={
-            <>
-              URL to your Auto1111 instance API. For more information,
-              check out the <ExternalLink href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API">
-                stable-diffusion-webui wiki
-              </ExternalLink>
-            </>
-          }
+          helperText={<>
+            For more information, see the guide on
+            the <Link target="_blank" href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/API">Stable Diffusion WebUI Wiki</Link>
+          </>}
         />
 
         <TextField
-          name="booru"
+          {...register('booruApi')}
           label="Booru Tags API"
-          value={settings.integrations.booru}
-          description="Booru tags autocomplete API. Search term will be added as a suffix"
+          helperText={<>
+            Add a <em>{'{terms}'}</em> placeholder in your URL to injecting search terms
+          </>}
         />
       </Stack>
-
-      <Divider />
-      <Text fs="md">Stable Diffusion img2img</Text>
-
-      <Stack gap="xl">
-        <Text fs="sm" c="neutral-subtle">Settings when executing img2img for content erasers</Text>
-      </Stack>
-    </Stack>
+    </Panel>
   )
 }

@@ -1,35 +1,41 @@
+import { Alert, Divider, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Stack, Switch, Tooltip, Typography } from "@mui/material";
+import { FormProvider, useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { useDeepCompareEffect } from "react-use";
+
 import { SelectField } from "@/components/SelectField";
 import { SliderField } from "@/components/SliderField";
-import { Divider, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Stack, Switch, Typography } from "@mui/material";
-import { FormProvider, useForm } from "react-hook-form";
+import { Panel } from "@/components/Panel";
+import { HumanizedValue } from "@/components/HumanizeValue";
+import { updateSampler } from "@/features/generator";
+import { useAppSelector } from "@/hooks";
 
 export function SamplerPanel() {
+  const sampler = useAppSelector((s) => s.generator.sampler);
+  const maxGPUCanvasSize = useAppSelector((s) => s.settings.maxGPUCanvasSize);
+
+  const dispatch = useDispatch();
+
   const methods = useForm<SamplerSettings>({
-    defaultValues: {
-      // TODO: Grab from Redux
-      useVAE: false,
-      width: 768,
-      height: 768,
-      steps: 20,
-      model: 'flat2DAnimerge_v20',
-      upscale: 1.0,
-      batchCount: 4,
-      batchSize: 1,
-    }
+    mode: 'all',
+    defaultValues: sampler,
   });
 
   const { register, watch } = methods;
 
-  const width = watch('width');
-  const height = watch('height');
-  const upscale = watch('upscale');
+  const settings = watch();
+  useDeepCompareEffect(() => {
+    dispatch(updateSampler(settings));
+  }, [settings]);
 
-  const outWidth = Math.floor(width * upscale);
-  const outHeight = Math.floor(height * upscale);
+  const outWidth = Math.floor(settings.width * settings.upscale * settings.batchSize);
+  const outHeight = Math.floor(settings.height * settings.upscale * settings.batchSize);
+
+  const exceedsCUDA = outWidth * outHeight > maxGPUCanvasSize;
 
   return (
     <FormProvider {...methods}>
-      <Stack padding={2} gap={1}>
+      <Panel gap={2}>
         <Stack direction="row" justifyContent="space-between">
           <SelectField name="model" label="Model">
             <MenuItem value="flat2DAnimerge_v20">flat2DAnimerge_v20</MenuItem>
@@ -38,6 +44,7 @@ export function SamplerPanel() {
 
           <FormControlLabel
             control={<Switch color="primary" />}
+            sx={{ minWidth: 140 }}
             label="Use VAE"
             labelPlacement="start"
             {...register('useVAE')}
@@ -45,9 +52,17 @@ export function SamplerPanel() {
         </Stack>
 
         <SliderField label="Sampling steps"
+          description="How many times to improve the generated image iteratively"
           name="steps"
           min={1}
           max={150}
+        />
+
+        <SliderField label="Cfg scale"
+          description="How strongly the image should conform to the prompt, lower values are more creative"
+          name="cfgScale"
+          min={1}
+          max={30}
         />
 
         <Stack direction="row" gap={4}>
@@ -81,7 +96,7 @@ export function SamplerPanel() {
         </Stack>
 
         <Typography fontSize="small" my={2}>
-          Canvas size is <strong>{width} x {height}</strong> for
+          Canvas size is <strong>{settings.width} x {settings.height}</strong> for
           <strong> {watch('batchSize')}</strong> concurrent image(s)
         </Typography>
 
@@ -94,16 +109,21 @@ export function SamplerPanel() {
           step={0.05}
         />
 
+        {settings.upscale > 1.001 &&
         <Typography fontSize="small" mt={2}>
-          Resize from <strong>{width} x {height}</strong> to
+          Resize from <strong>{settings.width} x {settings.height}</strong> to
           <strong> {outWidth} x {outHeight}</strong>
         </Typography>
+        }
 
-        {/* <Alert
-          variant="critical"
-          title="Concurrent size exceeds maximum resolution of 1500x1500"
-        /> */}
-      </Stack>
+        {exceedsCUDA &&
+          <Alert severity="error">
+            Total canvas size of <HumanizedValue value={outWidth * outHeight} /> pixels exceeds maximum resolution supported.
+            Adjust your concurrency count, upscale factor, and image dimensions to generate a resolution
+            under <HumanizedValue value={maxGPUCanvasSize} /> pixels.
+          </Alert>
+        }
+      </Panel>
     </FormProvider>
   )
 }

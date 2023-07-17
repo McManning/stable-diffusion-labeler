@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import Konva from "konva";
-import { Stage } from "react-konva";
+import { Rect, Stage } from "react-konva";
 import { useDispatch } from 'react-redux';
 
 import { useAppSelector } from '@/hooks';
@@ -9,14 +9,17 @@ import { useElementSize } from "@/hooks/useElementSize";
 import { DoodleTool, PenSettings, selectId, setIsDrawing, setRegions, setScale } from '@/features/doodle';
 import { openContextMenu } from '@/features/settings';
 
-import { ReferenceLayer } from "./ReferenceLayer";
+import { ReferenceLayer } from "./layers/ReferenceLayer";
 import { getRelativePointerPosition, newId } from './util';
 import { Tools } from "./Tools";
-import { DrawLayer } from "./DrawLayer";
+import { DrawLayer } from "./layers/DrawLayer";
 import { Root } from "./Doodle.styles";
 import { Dropzone } from "./Dropzone";
-import { BoundaryLayer } from "./BoundaryLayer";
+import { BoundaryLayer } from "./layers/BoundaryLayer";
 import { GeneratedImages } from "./GeneratedImages";
+import { BackgroundLayer } from "./layers/BackgroundLayer";
+import { PreprocessorLayer } from "./layers/PreprocessorLayer";
+import { GeneratedLayer } from "./layers/GeneratedLayer";
 
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 3;
@@ -25,48 +28,26 @@ export function DoodlePanel() {
   const stageRef = useRef<Konva.Stage>(null);
   const imageRef = useRef<Konva.Image>(null);
   const drawLayerRef = useRef<Konva.Layer>(null);
-  const [lastLine, setLastLine] = useState<Konva.Line>();
-
-  const [isMMDDragging, setMMDDrag] = useState(false);
 
   const dispatch = useDispatch();
 
   const { ref, width, height } = useElementSize<HTMLDivElement>();
 
-  const { imageWidth, imageHeight } = useAppSelector((s) => ({
-    imageWidth: s.doodle.imageWidth,
-    imageHeight: s.doodle.imageHeight,
-  }));
-
-  const regions = useAppSelector((s) => s.doodle.regions);
   const tool = useAppSelector((s) => s.doodle.tool);
   const toolSettings = useAppSelector((s) => s.doodle.toolSettings);
-  const isDrawing = useAppSelector((s) => s.doodle.isDrawing);
   const scale = useAppSelector((s) => s.doodle.scale);
-  const image = useAppSelector((s) => s.doodle.current);
-
-  // On change of the loaded image, fill and center on the canvas.
-  // useEffect(() => {
-  //   const newScale = Math.min(width / imageWidth, height / imageHeight);
-
-  //   stageRef.current?.scale({ x: newScale, y: newScale });
-  //   stageRef.current?.position({
-  //     x: 0.5 * width - newScale * imageWidth * 0.5,
-  //     y: 0.5 * height - newScale * imageHeight * 0.5,
-  //   });
-
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [image, imageWidth, imageHeight, stageRef]);
+  const samplerWidth = useAppSelector((s) => s.generator.sampler.width);
+  const samplerHeight = useAppSelector((s) => s.generator.sampler.height);
 
   useEffect(() => {
     stageRef.current?.scale({ x: 1, y: 1 });
     stageRef.current?.position({
-      x: 0.5 * width - (0.5 * 512),
-      y: 0.5 * height - (0.5 * 512),
+      x: 0.5 * width - (0.5 * samplerWidth),
+      y: 0.5 * height - (0.5 * samplerHeight),
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stageRef, width, height]);
+  }, [stageRef, width, height, samplerWidth, samplerHeight]);
 
   useEffect(() => {
     // Global control over drag buttons for konva.
@@ -114,8 +95,6 @@ export function DoodlePanel() {
 
     newScale = Math.min(Math.max(newScale, MIN_SCALE), MAX_SCALE);
 
-    stage.scale({ x: newScale, y: newScale });
-
     const newPos = {
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
@@ -160,6 +139,7 @@ export function DoodlePanel() {
     >
       <Dropzone>
         <Stage
+          id="doodle"
           ref={stageRef}
           className="canvas"
           width={width}
@@ -177,7 +157,10 @@ export function DoodlePanel() {
 
           onContextMenu={onContextMenu}
         >
+          <BackgroundLayer />
           <ReferenceLayer ref={imageRef} />
+          <GeneratedLayer />
+          <PreprocessorLayer />
           <DrawLayer ref={drawLayerRef} />
           <BoundaryLayer />
         </Stage>

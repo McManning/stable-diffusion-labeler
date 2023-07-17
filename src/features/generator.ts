@@ -1,0 +1,67 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import merge from 'lodash/merge';
+
+import { DEFAULT_TEMPLATE, TEMPLATES } from '@/templates';
+
+export type GeneratorState = {
+  templates: GeneratorTemplate[]
+
+  prompt: PromptSettings
+  sampler: SamplerSettings
+  controlNet: ControlNetSettings
+  blend: BlendSettings
+
+  images: GeneratedImage[]
+}
+
+const initialState: GeneratorState = {
+  templates: TEMPLATES,
+
+  prompt: DEFAULT_TEMPLATE.prompt,
+  sampler: DEFAULT_TEMPLATE.sampler,
+  controlNet: DEFAULT_TEMPLATE.controlNet,
+  blend: DEFAULT_TEMPLATE.blend,
+
+  images: [],
+};
+
+export const generator = createSlice({
+  name: 'generator',
+  initialState,
+  reducers: {
+    updatePrompt: (state, update: PayloadAction<Partial<PromptSettings>>) => {
+      state.prompt = merge(state.blend, update.payload);
+    },
+    updateSampler: (state, update: PayloadAction<Partial<SamplerSettings>>) => {
+      state.sampler = merge(state.sampler, update.payload);
+    },
+    updateControlNet: (state, update: PayloadAction<Partial<ControlNetSettings>>) => {
+      state.controlNet = merge(state.controlNet, update.payload);
+    },
+    updateBlend: (state, update: PayloadAction<Partial<BlendSettings>>) => {
+      state.blend = merge(state.blend, update.payload);
+    },
+
+    addImages: (state, images: PayloadAction<GeneratedImage[]>) => {
+      state.images = [
+        ...state.images,
+        ...images.payload,
+      ];
+    },
+
+    clearImages: (state) => {
+      state.images = [];
+    }
+  }
+});
+
+export const {
+  updatePrompt,
+  updateSampler,
+  updateControlNet,
+  updateBlend,
+  addImages,
+  clearImages,
+} = generator.actions;
+
+export const { reducer } = generator;

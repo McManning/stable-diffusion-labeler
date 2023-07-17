@@ -36,6 +36,7 @@ export function SliderField(props: SliderFieldProps) {
           </Typography>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs>
+              {/* {JSON.stringify(rhf.field)} */}
               <Slider
                 min={min}
                 max={max}
@@ -67,7 +68,7 @@ export function SliderField(props: SliderFieldProps) {
             </Grid>
           </Grid>
           {description &&
-            <Typography>{description}</Typography>
+            <Typography fontSize="small" color="text.secondary">{description}</Typography>
           }
         </Box>
       )}

@@ -2,6 +2,8 @@ import { Box, Button, ButtonBase, IconButton, Modal, Stack, Typography, styled }
 import { Icon } from "@osuresearch/iconography";
 import Image from "mui-image";
 import { useState } from "react";
+import { GenerateButton } from "./GenerateButton";
+import { useAppSelector } from "@/hooks";
 
 const Thumbnail = styled(ButtonBase)(({ theme }) => ({
   width: 128,
@@ -33,120 +35,25 @@ const Lightbox = styled(Box)(({ theme }) => ({
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '85vw',
+  // width: '85vw',
+
   // backgroundColor: theme.palette.background.paper,
   padding: 8,
   outline: 'none',
+
 }));
 
-type GeneratedImage = {
-  id: string
-  src: string
-}
-
-const images: GeneratedImage[] = [
-  {
-    id: 'foo',
-    src: 'https://i.imgur.com/0tg4PjR.png'
-  },
-  {
-    id: 'bar',
-    src: 'https://i.imgur.com/Wu1bKN3.png'
-  },
-  {
-    id: 'fizz',
-    src: 'https://i.imgur.com/3Dr1JaR.png'
-  },
-  {
-    id: 'buzz',
-    src: 'https://i.imgur.com/qiuWP49.png'
-  },
-  {
-    id: 'foo',
-    src: 'https://i.imgur.com/0tg4PjR.png'
-  },
-  {
-    id: 'bar',
-    src: 'https://i.imgur.com/Wu1bKN3.png'
-  },
-  {
-    id: 'fizz',
-    src: 'https://i.imgur.com/3Dr1JaR.png'
-  },
-  {
-    id: 'buzz',
-    src: 'https://i.imgur.com/qiuWP49.png'
-  },
-  {
-    id: 'foo',
-    src: 'https://i.imgur.com/0tg4PjR.png'
-  },
-  {
-    id: 'bar',
-    src: 'https://i.imgur.com/Wu1bKN3.png'
-  },
-  {
-    id: 'fizz',
-    src: 'https://i.imgur.com/3Dr1JaR.png'
-  },
-  {
-    id: 'buzz',
-    src: 'https://i.imgur.com/qiuWP49.png'
-  },
-  {
-    id: 'foo',
-    src: 'https://i.imgur.com/0tg4PjR.png'
-  },
-  {
-    id: 'bar',
-    src: 'https://i.imgur.com/Wu1bKN3.png'
-  },
-  {
-    id: 'fizz',
-    src: 'https://i.imgur.com/3Dr1JaR.png'
-  },
-  {
-    id: 'buzz',
-    src: 'https://i.imgur.com/qiuWP49.png'
-  },
-  {
-    id: 'foo',
-    src: 'https://i.imgur.com/0tg4PjR.png'
-  },
-  {
-    id: 'bar',
-    src: 'https://i.imgur.com/Wu1bKN3.png'
-  },
-  {
-    id: 'fizz',
-    src: 'https://i.imgur.com/3Dr1JaR.png'
-  },
-  {
-    id: 'buzz',
-    src: 'https://i.imgur.com/qiuWP49.png'
-  },
-  {
-    id: 'foo',
-    src: 'https://i.imgur.com/0tg4PjR.png'
-  },
-  {
-    id: 'bar',
-    src: 'https://i.imgur.com/Wu1bKN3.png'
-  },
-  {
-    id: 'fizz',
-    src: 'https://i.imgur.com/3Dr1JaR.png'
-  },
-  {
-    id: 'buzz',
-    src: 'https://i.imgur.com/qiuWP49.png'
-  },
-
-
-]
+const LightboxImage = styled(Image)(({ theme }) => ({
+  background: '#000000',
+  border: '2px solid #ffffff',
+  borderRadius: 6,
+}));
 
 export function GeneratedImages() {
   const [preview, setPreview] = useState<number>();
+  const allImages = useAppSelector((s) => s.generator.images);
+
+  const images = allImages.filter((img) => img.type === 'txt2img');
 
   const onPrevImage = () => {
     if (preview === undefined) {
@@ -171,6 +78,9 @@ export function GeneratedImages() {
 
   const previewed = (preview !== undefined && images[preview]) ? images[preview] : undefined;
 
+  // TODO: Autoscroll when new images are added to make sure whatever the last
+  // image in before a batch is the first visible in the list
+
   return (
     <Box position="absolute" bottom={8} left={8} right={8}>
       <Stack direction="row" width="100%" justifyContent="space-between" alignItems="end" gap={2}>
@@ -185,7 +95,7 @@ export function GeneratedImages() {
             </Thumbnail>
           )}
         </Thumbnails>
-        <Button sx={{ minWidth: 200 }}>Generate 5 more</Button>
+        <GenerateButton />
       </Stack>
 
       <Modal
@@ -198,10 +108,10 @@ export function GeneratedImages() {
             <IconButton onClick={onPrevImage}>
               <Icon size={32} name="leftOutline" />
             </IconButton>
-            <Image
+            <LightboxImage
               src={previewed.src}
               duration={500}
-              fit="contain"
+              fit="cover"
             />
             <IconButton onClick={onNextImage}>
               <Icon size={32} name="leftOutline" rotate={180} />

@@ -24,7 +24,7 @@ export function SelectField(props: SelectFieldProps) {
       name={name}
       control={control}
       render={(rhf) => (
-        <FormControl size="small">
+        <FormControl size="small" fullWidth>
           <InputLabel id={`${name}-label`}>{label}</InputLabel>
           <Select
             labelId={`${name}-label`}

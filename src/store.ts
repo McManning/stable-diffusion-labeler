@@ -7,6 +7,7 @@ import { reducer as dataset } from '@/features/dataset';
 import { reducer as queue } from '@/features/queue';
 import { reducer as workspace } from '@/features/workspace';
 import { reducer as doodle } from '@/features/doodle';
+import { reducer as generator } from '@/features/generator';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     queue,
     workspace,
     doodle,
+    generator,
   },
 });
 

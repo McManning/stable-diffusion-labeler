@@ -1,7 +1,7 @@
 import { forwardRef, useRef, useState } from "react";
 import Konva from "konva";
 import { Circle, Layer, Rect } from "react-konva";
-import { getRelativePointerPosition, mergeRefs, newId } from "./util";
+import { getRelativePointerPosition, mergeRefs, newId } from "../util";
 import { DoodleTool, PenSettings, setIsDrawing } from "@/features/doodle";
 import { useAppSelector } from "@/hooks";
 import { useDispatch } from "react-redux";
@@ -15,8 +15,8 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   const tool = useAppSelector((s) => s.doodle.tool);
   const currentSettings = useAppSelector((s) => s.doodle.toolSettings[s.doodle.tool]);
   const isDrawing = useAppSelector((s) => s.doodle.isDrawing);
-  const width = useAppSelector((s) => s.doodle.boundaryWidth);
-  const height = useAppSelector((s) => s.doodle.boundaryHeight);
+  const width = useAppSelector((s) => s.generator.sampler.width);
+  const height = useAppSelector((s) => s.generator.sampler.height);
 
   const dispatch = useDispatch();
 
@@ -26,8 +26,6 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   }
 
   const onMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    console.log(e);
-
     // Ignore context menu clicks
     if (e.evt.button !== 0) { // Left
       return;
@@ -63,6 +61,7 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
           lineCap: 'round',
           lineJoin: 'round',
           points: [point.x, point.y, point.x, point.y],
+          shadowForStrokeEnabled: false,
         });
 
         drawLayerRef.current?.add(line);
@@ -72,8 +71,6 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   }
 
   const onDrag = (e: Konva.KonvaEventObject<MouseEvent|TouchEvent>) => {
-    console.log(e);
-
     if (!isDrawing) {
       return;
     }
@@ -103,8 +100,6 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   }
 
   const onStopDrawing = (e: Konva.KonvaEventObject<MouseEvent|TouchEvent>) => {
-    console.log(e);
-
     if (!isDrawing) {
       return;
     }
@@ -133,6 +128,7 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   // Rect is used for receiving mouse events for the draw tool while active.
   return (
     <Layer
+      id="draw"
       ref={mergeRefs(ref, drawLayerRef)}
       listening={listening}
       onMouseDown={onMouseDown}

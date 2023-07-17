@@ -1,22 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import merge from 'lodash/merge';
 
 // import type { RootState } from '../store';
-
-export type StableDiffusionSettings = {
-  /**
-   * Stable Diffusion Web UI API
-   */
-  sdapi: string
-
-  /**
-   * Booru tags API
-   */
-  booru: string
-}
-
-export type IntegrationSettings = StableDiffusionSettings & {
-  // TODO: RunPod, Drive, and other things?
-}
 
 export type ContextMenuState = {
   position: Point
@@ -27,13 +12,16 @@ export type ContextMenuState = {
 export type SettingsState = {
   contextMenu?: ContextMenuState
   integrations: IntegrationSettings
+
+  maxGPUCanvasSize: number
 }
 
 const initialState: SettingsState = {
   integrations: {
     sdapi: 'http://localhost:7860/sdapi/v1',
-    booru: 'https://danbooru.donmai.us/autocomplete.json?search[type]=tag_query&version=1&limit=20&search[query]=',
-  }
+    booruApi: 'https://danbooru.donmai.us/autocomplete.json?search[type]=tag_query&version=1&limit=20&search[query]={terms}',
+  },
+  maxGPUCanvasSize: 1280 * 1280,
 };
 
 /**
@@ -51,8 +39,8 @@ const settings = createSlice({
       state.contextMenu = undefined;
     },
 
-    setIntegrations: (state, integrations: PayloadAction<IntegrationSettings>) => {
-      state.integrations = integrations.payload;
+    updateIntegrations: (state, integrations: PayloadAction<IntegrationSettings>) => {
+      state.integrations = merge(state.integrations, integrations.payload);
     },
   },
 });
@@ -60,7 +48,7 @@ const settings = createSlice({
 export const {
   openContextMenu,
   closeContextMenu,
-  setIntegrations,
+  updateIntegrations,
 } = settings.actions;
 
 export const { reducer } = settings;

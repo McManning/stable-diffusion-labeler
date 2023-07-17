@@ -107,7 +107,7 @@ const Tags = styled(Box)<TagsProps>(({ focused, theme }) => ({
 
 
 /**
- * Does the tag represent a LoRA (*or* a LyCORA)
+ * Does the tag represent a LoRA (*or* a LyCORIS)
  */
 function isLoRA(tag: Tag): boolean {
   const text = tag.text.trim();

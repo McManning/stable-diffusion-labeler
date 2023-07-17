@@ -1,28 +1,34 @@
-import { SelectField } from "@/components/SelectField";
-import { SliderField } from "@/components/SliderField";
-import { Stack, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { Stack, MenuItem } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 
+import { Panel } from "@/components/Panel";
+import { SelectField } from "@/components/SelectField";
+import { SliderField } from "@/components/SliderField";
+import { useAppSelector } from "@/hooks";
+import { updateControlNet } from "@/features/generator";
+
 export function ControlNetPanel() {
+  const controlNet = useAppSelector((s) => s.generator.controlNet);
+  const dispatch = useDispatch();
+
   const methods = useForm<ControlNetSettings>({
-    defaultValues: {
-      // TODO: Grab from Redux
-      model: 'scribble_xdog',
-      weight: 0.7,
-      start: 0,
-      end: 0.15,
-      xdogThreshold: 32,
-    }
+    mode: 'all',
+    defaultValues: controlNet,
   });
 
-  const { watch } = methods;
+  const changes = methods.watch();
 
-  const useXDoG = watch('model') === 'scribble_xdog';
+  useEffect(() => {
+    dispatch(updateControlNet(changes));
+  }, [changes, dispatch]);
+
+  const useXDoG = changes.model === 'scribble_xdog';
 
   return (
     <FormProvider {...methods}>
-      <Stack padding={2} gap={1}>
-
+      <Panel gap={2}>
         <SelectField name="model" label="Model">
           <MenuItem value="canny">Canny</MenuItem>
           <MenuItem value="mlsd">MLSD</MenuItem>
@@ -60,7 +66,7 @@ export function ControlNetPanel() {
             max={64}
           />
         }
-      </Stack>
+      </Panel>
     </FormProvider>
   )
 }

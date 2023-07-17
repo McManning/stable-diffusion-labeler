@@ -9,6 +9,8 @@ import { DoodleTool, setTool } from '@/features/doodle';
 import { ToolButton } from './ToolButton';
 import { ToolSettings } from './ToolSettings';
 import { ZoomField } from './ZoomField';
+import { ClearDoodleButton } from './ClearDoodleButton';
+import { LayersField } from './LayersField';
 
 const Root = styled(Stack)(({ theme }) => ({
   position: 'absolute',
@@ -66,13 +68,17 @@ export function Tools() {
       <ToolSettings />
     </Root>
 
-    <Box
+    <Stack
+      direction="row"
       position="absolute"
       right={8}
       top={8}
+      gap={1}
     >
+      <LayersField />
+      <ClearDoodleButton />
       <ZoomField />
-    </Box>
+    </Stack>
     </>
   )
 }

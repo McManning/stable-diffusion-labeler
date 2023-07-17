@@ -39,7 +39,7 @@ function ProjectPanelImpl() {
     <Panel>
       <Stack height="100%" width="100%" overflow="hidden">
         {!workspace &&
-          <Stack direction="column" spacing={2} p={2}>
+          <Stack direction="column" gap={1}>
 
             <OpenWorkspaceButton />
 
@@ -53,7 +53,7 @@ function ProjectPanelImpl() {
         }
 
         {workspace &&
-          <Stack p={1} direction="row">
+          <Stack direction="row">
             <Typography color="#9CA3AF"> {/* TODO: Fix color */}
             {!untagged && <>
               {images.length} images &middot;
