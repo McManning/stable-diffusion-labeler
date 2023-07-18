@@ -115,6 +115,7 @@
     "lodash": "^4.17.21",
     "mui-image": "^1.0.7",
     "numbro": "^2.3.6",
+    "party-js": "^2.2.0",
     "postcss-loader": "^7.3.3",
     "prop-types": "^15.7.2",
     "react": "^18.2.0",

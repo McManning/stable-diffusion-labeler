@@ -105,18 +105,6 @@ export const doodle = createSlice({
   name: 'doodle',
   initialState,
   reducers: {
-    setImage: (state, current: PayloadAction<TrainingImage | undefined>) => {
-      state.current = current.payload;
-      // TODO: Image dimensions, etc.
-
-      // Reset our state for this image
-      state.regions = [];
-      state.scale = 1;
-      state.selectedId = undefined;
-      state.brightness = 0;
-      state.tool = DoodleTool.Pan;
-    },
-
     setCanvasSize: (state, regions: PayloadAction<{ width: number, height: number }>) => {
       state.width = regions.payload.width;
       state.height = regions.payload.height;
@@ -180,7 +168,6 @@ export const doodle = createSlice({
 });
 
 export const {
-  setImage,
   setCanvasSize,
   setImageSize,
   setBoundarySize,

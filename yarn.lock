@@ -12873,6 +12873,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"party-js@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "party-js@npm:2.2.0"
+  checksum: 4afe0cac3b8faaf4a9c27fa51cd57448fdf1a0a854cd82bf89cf942dcb51ebd83fc05924de1d66d902a2b1cea24a2fd1639ba1d0a093639a2c5e47068c43450a
+  languageName: node
+  linkType: hard
+
 "pascal-case@npm:^3.1.2":
   version: 3.1.2
   resolution: "pascal-case@npm:3.1.2"
@@ -14537,6 +14544,7 @@ __metadata:
     mini-css-extract-plugin: ^2.7.2
     mui-image: ^1.0.7
     numbro: ^2.3.6
+    party-js: ^2.2.0
     postcss: ^8.4.24
     postcss-loader: ^7.3.3
     prettier: ^2.8.4

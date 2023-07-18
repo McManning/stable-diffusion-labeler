@@ -1,68 +1,62 @@
+import { Icon } from "@osuresearch/iconography";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import party from "party-js";
+import { Box, Button, ButtonGroup, ListItemText, Menu, MenuItem, styled } from "@mui/material";
+
 import { addImages, clearImages } from "@/features/generator";
 import { useAppSelector } from "@/hooks";
+import { useControlNet } from "@/hooks/useControlNet";
 import { useDoodleStage } from "@/hooks/useDoodleStage";
 import { createTxt2ImgPayload } from "@/utils";
-import { Button, ButtonGroup, ClickAwayListener, Grow, ListItemText, Menu, MenuItem, MenuList, Paper, Popper, Typography } from "@mui/material";
-import { Icon } from "@osuresearch/iconography";
-import Konva from "konva";
-import { useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+
+
+const GeneratorProgress = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: 0,
+  height: 4,
+  backgroundColor: theme.palette.success.main,
+  borderTopLeftRadius: 3,
+}))
+
+/**
+ * Can't do THIS during my day job.
+ */
+function ConfettiAnchor({ activate }: { activate: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activate && ref.current) {
+      party.sparkles(ref.current, {
+        count: party.variation.range(8, 12),
+        size: party.variation.range(0.5, 0.8),
+        lifetime: party.variation.range(0.5, 1),
+      })
+    }
+  }, [ref, activate]);
+
+  return (
+    <Box sx={{ position: 'absolute', top: 0, right: 0 }} ref={ref}>
+      {activate}
+    </Box>
+  );
+}
 
 export function GenerateButton() {
   const generator = useAppSelector((s) => s.generator);
   const settings = useAppSelector((s) => s.settings.integrations);
-  const [loading, setLoading] = useState(false);
-
   const dispatch = useDispatch();
 
   const { exportDrawLayer } = useDoodleStage();
 
   const { sampler } = generator;
 
-
-  // TODO: Move all this. Shouldn't exist in the button. Move to a hook.
+  const { loading, error, generate, progress, eta } = useControlNet();
 
   const onGenerate = async () => {
-    const url = `${settings.sdapi}/txt2img`;
-
-    setLoading(true);
-
-    const b64img = await exportDrawLayer(sampler.width, sampler.height);
-
-    // // TEMP: Just store.
-    // dispatch(addImages([{
-    //   id: Date.now().toString(),
-    //   src: b64img,
-    // }]));
-
-    const res = await fetch(url, {
-      method: 'POST',
-      mode: 'cors',
-      cache: 'no-cache',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(
-        createTxt2ImgPayload(b64img, generator)
-      )
-    });
-
-    const data = await res.json();
-
-    if (Array.isArray(data.images)) {
-      const images = data.images.map((b64: string, idx: number) => ({
-        id: Date.now().toString(),
-        src: `data:image/png;base64,${b64}`,
-        info: data.info,
-        // ControlNet preprocessed images follow the generated images.
-        // This cannot be turned off for now. See: https://github.com/Mikubill/sd-webui-controlnet/issues/1432
-        type: idx >= sampler.batchCount ? 'preprocessed' : 'txt2img'
-      } as GeneratedImage));
-
-      dispatch(addImages(images));
-    }
-
-    setLoading(false);
+    await generate(exportDrawLayer);
   }
 
   const anchorRef = useRef<HTMLButtonElement>(null);
@@ -78,10 +72,17 @@ export function GenerateButton() {
     <ButtonGroup
       disabled={loading}
       variant="outlined"
-      sx={{ justifyContent: 'right', whiteSpace: 'nowrap', backgroundColor: '#000' }}
+      sx={{
+        minWidth: 220,
+        position: 'relative',
+        justifyContent: 'right',
+        whiteSpace: 'nowrap',
+        backgroundColor: '#000'
+      }}
     >
-      <Button onClick={onGenerate} disabled={loading}>
-        Generate {sampler.batchCount * sampler.batchSize} images
+      <Button onClick={onGenerate} disabled={loading} fullWidth>
+        {loading && <>ETA: {Math.max(0, eta).toFixed(1)} seconds</>}
+        {!loading && <>Generate {sampler.batchCount * sampler.batchSize} images</>}
       </Button>
       <Button
         ref={anchorRef}
@@ -94,6 +95,10 @@ export function GenerateButton() {
       >
         <Icon size={12} name="caret" />
       </Button>
+      {loading &&
+        <GeneratorProgress style={{ width: `${progress * 100}%`}} />
+      }
+      <ConfettiAnchor activate={progress > 0.999} />
     </ButtonGroup>
 
     <Menu

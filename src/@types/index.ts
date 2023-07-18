@@ -168,3 +168,12 @@ type GeneratedImage = {
 
   type: 'preprocessed' | 'txt2img';
 }
+
+type InProgressImage = {
+  id: string
+  src: string
+  info: string
+  progress: number
+  eta: number
+}
+

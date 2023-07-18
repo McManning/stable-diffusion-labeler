@@ -11,7 +11,19 @@ export type GeneratorState = {
   controlNet: ControlNetSettings
   blend: BlendSettings
 
+  /** Previously generated images */
   images: GeneratedImage[]
+
+  /**
+   * Are we currently generating new images
+   */
+  generating: boolean
+
+  /** Last error while generating new images */
+  error?: string
+
+  /** "in progress" image being generated */
+  progressImage?: InProgressImage
 }
 
 const initialState: GeneratorState = {
@@ -23,6 +35,8 @@ const initialState: GeneratorState = {
   blend: DEFAULT_TEMPLATE.blend,
 
   images: [],
+
+  generating: false,
 };
 
 export const generator = createSlice({
@@ -41,7 +55,15 @@ export const generator = createSlice({
     updateBlend: (state, update: PayloadAction<Partial<BlendSettings>>) => {
       state.blend = merge(state.blend, update.payload);
     },
-
+    setGenerating: (state, value: PayloadAction<boolean>) => {
+      state.generating = value.payload;
+    },
+    setError: (state, value: PayloadAction<string|undefined>) => {
+      state.error = value.payload;
+    },
+    setProgressImage: (state, value: PayloadAction<InProgressImage|undefined>) => {
+      state.progressImage = value.payload;
+    },
     addImages: (state, images: PayloadAction<GeneratedImage[]>) => {
       state.images = [
         ...state.images,
@@ -60,6 +82,9 @@ export const {
   updateSampler,
   updateControlNet,
   updateBlend,
+  setGenerating,
+  setError,
+  setProgressImage,
   addImages,
   clearImages,
 } = generator.actions;
