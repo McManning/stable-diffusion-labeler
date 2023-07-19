@@ -9,6 +9,12 @@ export enum DoodleTool {
   Pen = 'Pen',
 }
 
+export type DoodleLayer = {
+  id: string
+  visible: boolean
+  opacity: number
+}
+
 export type ImageReference = {
   id: string
   filename: string
@@ -60,8 +66,10 @@ type DoodleState = {
 
   references: ImageReference[]
 
-  preprocessedImageOpacity: number
-  generatedImageOpacity: number
+  /**
+   * Metadata associated with each layer
+   */
+  layers: DoodleLayer[]
 }
 
 const initialState: DoodleState = {
@@ -89,13 +97,33 @@ const initialState: DoodleState = {
     [DoodleTool.References]: {},
   },
 
+  layers: [
+    {
+      id: 'Draw',
+      visible: true,
+      opacity: 1,
+    },
+    {
+      id: 'Reference',
+      visible: true,
+      opacity: 1,
+    },
+    {
+      id: 'Preprocess',
+      visible: false,
+      opacity: 0.7,
+    },
+    {
+      id: 'Preview',
+      visible: true,
+      opacity: 1,
+    }
+  ],
+
   isDrawing: false,
 
   regions: [],
   references: [],
-
-  generatedImageOpacity: 1,
-  preprocessedImageOpacity: 0.4,
 };
 
 /**
@@ -124,6 +152,10 @@ export const doodle = createSlice({
       state.regions = regions.payload;
     },
 
+    setLayers: (state, layers: PayloadAction<DoodleLayer[]>) => {
+      state.layers = [...layers.payload];
+    },
+
     selectId: (state, id: PayloadAction<string|undefined>) => {
       state.selectedId = id.payload;
     },
@@ -134,14 +166,6 @@ export const doodle = createSlice({
 
     setBrightness: (state, brightness: PayloadAction<number>) => {
       state.brightness = brightness.payload;
-    },
-
-    setPreprocessedImageOpacity: (state, opacity: PayloadAction<number>) => {
-      state.preprocessedImageOpacity = opacity.payload;
-    },
-
-    setGeneratedImageOpacity: (state, opacity: PayloadAction<number>) => {
-      state.generatedImageOpacity = opacity.payload;
     },
 
     setTool: (state, mode: PayloadAction<DoodleTool>) => {
@@ -172,11 +196,10 @@ export const {
   setImageSize,
   setBoundarySize,
   setRegions,
+  setLayers,
   selectId,
   setScale,
   setBrightness,
-  setPreprocessedImageOpacity,
-  setGeneratedImageOpacity,
   setIsDrawing,
   setTool,
   setToolSettings,

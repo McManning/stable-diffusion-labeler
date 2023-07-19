@@ -5,7 +5,7 @@ import { Image, Layer, Rect } from "react-konva";
 import { useAppSelector } from "@/hooks";
 import useImage from "use-image";
 
-function ProgressImage() {
+function ProgressImage({ opacity, visible }: { opacity?: number, visible?: boolean }) {
   const progressImage = useAppSelector((s) => s.generator.progressImage);
   const sampler = useAppSelector((s) => s.generator.sampler);
 
@@ -20,7 +20,13 @@ function ProgressImage() {
   }, [prevImage, image, imageState]);
 
   return (
-    <Image image={prevImage} opacity={1} width={sampler.width} height={sampler.height} />
+    <Image
+      image={prevImage}
+      opacity={opacity}
+      visible={visible}
+      width={sampler.width}
+      height={sampler.height}
+    />
   )
 }
 
@@ -28,8 +34,8 @@ function ProgressImage() {
  * Display the most recent batch of generated images and preprocessors
  */
 export const GeneratedLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
-  const generatedImageOpacity = useAppSelector((s) => s.doodle.generatedImageOpacity);
-  const preprocessedImageOpacity = useAppSelector((s) => s.doodle.preprocessedImageOpacity);
+  const previewSettings = useAppSelector((s) => s.doodle.layers.find((l) => l.id === 'Preview'));
+  const preprocessSettings = useAppSelector((s) => s.doodle.layers.find((l) => l.id === 'Preprocess'));
 
   const allImages = useAppSelector((s) => s.generator.images);
   const generating = useAppSelector((s) => s.generator.generating);
@@ -46,10 +52,22 @@ export const GeneratedLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   // Preprocessors on the same layer so we can do composite blend ops
   return (
     <Layer id="generated" ref={ref} listening={false}>
-      <Image image={generated} opacity={generatedImageOpacity} />
-      <Image image={preprocessed} globalCompositeOperation="lighten" opacity={preprocessedImageOpacity} />
+      <Image
+        image={generated}
+        opacity={previewSettings?.opacity}
+        visible={previewSettings?.visible}
+      />
+      <Image
+        image={preprocessed}
+        globalCompositeOperation="lighter"
+        opacity={preprocessSettings?.opacity}
+        visible={preprocessSettings?.visible}
+      />
       {generating &&
-        <ProgressImage />
+        <ProgressImage
+          opacity={previewSettings?.opacity}
+          visible={previewSettings?.visible}
+        />
       }
     </Layer>
   );

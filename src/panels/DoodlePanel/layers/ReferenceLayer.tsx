@@ -94,6 +94,7 @@ export const ReferenceLayer = forwardRef<Konva.Image, {}>((_, ref) => {
   const selectedId = useAppSelector((s) => s.doodle.selectedId);
   const brightness = useAppSelector((s) => s.doodle.brightness);
   const references = useAppSelector((s) => s.doodle.references);
+  const layerSettings = useAppSelector((s) => s.doodle.layers.find((l) => l.id === 'Reference'));
 
   const dispatch = useDispatch();
 
@@ -108,7 +109,12 @@ export const ReferenceLayer = forwardRef<Konva.Image, {}>((_, ref) => {
   }, [brightness]);
 
   return (
-    <Layer id="reference" ref={layerRef}>
+    <Layer
+      id="reference"
+      ref={layerRef}
+      visible={layerSettings?.visible}
+      opacity={layerSettings?.opacity}
+    >
       {references.map((r, i) => (
         <Reference
           key={r.id}

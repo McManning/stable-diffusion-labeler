@@ -13,7 +13,8 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   const drawLayerRef = useRef<Konva.Layer>(null);
 
   const tool = useAppSelector((s) => s.doodle.tool);
-  const currentSettings = useAppSelector((s) => s.doodle.toolSettings[s.doodle.tool]);
+  const toolSettings = useAppSelector((s) => s.doodle.toolSettings[s.doodle.tool]);
+  const layerSettings = useAppSelector((s) => s.doodle.layers.find((l) => l.id === 'Draw'));
   const isDrawing = useAppSelector((s) => s.doodle.isDrawing);
   const width = useAppSelector((s) => s.generator.sampler.width);
   const height = useAppSelector((s) => s.generator.sampler.height);
@@ -21,8 +22,8 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   const dispatch = useDispatch();
 
   let strokeWidth = 0;
-  if ((currentSettings as PenSettings).thickness) {
-    strokeWidth = (currentSettings as PenSettings).thickness;
+  if ((toolSettings as PenSettings).thickness) {
+    strokeWidth = (toolSettings as PenSettings).thickness;
   }
 
   const onMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -138,6 +139,8 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
 
       onTouchMove={onDrag}
       onTouchEnd={onStopDrawing}
+      visible={layerSettings?.visible}
+      opacity={layerSettings?.opacity}
     >
       <Rect
         x={-OVERDRAW_SIZE}

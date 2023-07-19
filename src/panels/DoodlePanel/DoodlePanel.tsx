@@ -18,7 +18,6 @@ import { Dropzone } from "./Dropzone";
 import { BoundaryLayer } from "./layers/BoundaryLayer";
 import { GeneratedImages } from "./GeneratedImages";
 import { BackgroundLayer } from "./layers/BackgroundLayer";
-import { PreprocessorLayer } from "./layers/PreprocessorLayer";
 import { GeneratedLayer } from "./layers/GeneratedLayer";
 
 const MIN_SCALE = 0.1;
@@ -160,7 +159,6 @@ export function DoodlePanel() {
           <BackgroundLayer />
           <ReferenceLayer ref={imageRef} />
           <GeneratedLayer />
-          <PreprocessorLayer />
           <DrawLayer ref={drawLayerRef} />
           <BoundaryLayer />
         </Stage>
