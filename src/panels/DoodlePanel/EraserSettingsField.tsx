@@ -30,7 +30,7 @@ export function EraserSettingsField() {
         onChange={onChangeThickness}
         valueLabelDisplay="auto"
         min={1}
-        max={32}
+        max={128}
       />
     </Box>
   );
