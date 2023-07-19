@@ -8,6 +8,8 @@ import { SelectField } from "@/components/SelectField";
 import { TagsField } from "@/components/TagsField";
 import { updatePrompt } from "@/features/generator";
 import { useAppSelector } from "@/hooks";
+import { SliderField } from "@/components/SliderField";
+import { useDeepCompareEffect } from "react-use";
 
 function BlendPromptTag({ prompt, positive }: { prompt: BlendPrompt, positive?: boolean }) {
   if (prompt.positive && prompt.positive.length > 0 && positive) {
@@ -37,9 +39,9 @@ export function PromptPanel() {
 
   const { control } = methods;
 
-  useEffect(() => {
+  useDeepCompareEffect(() => {
     dispatch(updatePrompt(changes));
-  }, [changes, dispatch]);
+  }, [changes]);
 
   const blendPositives = Object.keys(blend.prompts).filter((id) => blend.prompts[id].weight > 0 && blend.prompts[id].positive);
   const blendNegatives = Object.keys(blend.prompts).filter((id) => blend.prompts[id].weight > 0 && blend.prompts[id].negative);
@@ -98,6 +100,7 @@ export function PromptPanel() {
             )}
           </Typography>
         }
+
 
         <Typography fontSize="small">
           Generating {sampler.batchCount * sampler.batchSize} images
