@@ -13,6 +13,22 @@ export interface SliderFieldProps extends HTMLAttributes<HTMLInputElement> {
   step?: number
 }
 
+function clamp(value: string, min?: number, max?: number): string {
+  if (value.length < 1) {
+    return value;
+  }
+
+  const f = Number.parseFloat(value);
+
+  return '' + Math.min(
+    max ?? Number.POSITIVE_INFINITY,
+    Math.max(
+      min ?? Number.NEGATIVE_INFINITY,
+      f
+    )
+  );
+}
+
 /**
  * Custom slider with numeric input.
  *
@@ -55,7 +71,12 @@ export function SliderField(props: SliderFieldProps) {
                 }}
                 size="small"
                 inputProps={{
-                  onChange: rhf.field.onChange,
+                  // TODO: Validate onChange, only set if valid.
+                  // Clamp into range if invalid onBlur.
+                  onChange: (e) => {
+                    e.currentTarget.value = clamp(e.currentTarget.value, min, max);
+                    rhf.field.onChange(e);
+                  },
                   onBlur: rhf.field.onBlur,
                   ref: rhf.field.ref,
                   step,
