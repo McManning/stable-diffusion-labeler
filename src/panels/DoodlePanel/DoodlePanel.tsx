@@ -21,7 +21,7 @@ import { BackgroundLayer } from "./layers/BackgroundLayer";
 import { GeneratedLayer } from "./layers/GeneratedLayer";
 
 const MIN_SCALE = 0.1;
-const MAX_SCALE = 3;
+const MAX_SCALE = 5;
 
 export function DoodlePanel() {
   const stageRef = useRef<Konva.Stage>(null);
