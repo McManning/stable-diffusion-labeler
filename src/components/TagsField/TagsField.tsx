@@ -161,17 +161,13 @@ export function TagsField(props: TagsFieldProps) {
 
   const [focused, setFocused] = useState(false);
 
+  // TODO:
   const suggestions: Tag[] = [
     { id: 'Japan', text: 'Japan' },
     { id: 'Jargon', text: 'Jargon' },
   ]
 
-  const [tags, setTags] = useState<Tag[]>([
-    // { id: 'Thailand', text: 'Thailand' },
-    // { id: 'India', text: 'India' },
-    // { id: 'Vietnam', text: 'Vietnam' },
-    // { id: 'Turkey', text: 'Turkey' },
-  ]);
+  const [tags, setTags] = useState<Tag[]>([]);
 
   useEffect(() => {
     setTags(textToTags(value ?? ''));
@@ -212,6 +208,13 @@ export function TagsField(props: TagsFieldProps) {
     replaceTags([...tags]);
   }
 
+  const handleInputBlur = (textInputValue: string) => {
+    if (textInputValue.length > 0) {
+      handleAddition({ id: textInputValue, text: textInputValue });
+    }
+    setFocused(false);
+  }
+
   return (
     <Tags focused={focused}>
       <Typography component="label" htmlFor={name} fontSize={12}>
@@ -230,7 +233,7 @@ export function TagsField(props: TagsFieldProps) {
         handleDrag={handleDrag}
         handleTagClick={handleTagClick}
         handleInputFocus={() => setFocused(true)}
-        handleInputBlur={() => setFocused(false)}
+        handleInputBlur={handleInputBlur}
         inputFieldPosition="inline"
         autocomplete
         inline
