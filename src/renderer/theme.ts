@@ -76,6 +76,11 @@ export const theme = createTheme({
         variant: 'contained',
       }
     },
+    MuiButtonGroup: {
+      defaultProps: {
+        disableRipple: true,
+      }
+    },
     MuiTooltip: {
       styleOverrides: {
         // TODO: Margin between the tooltip and the target.
