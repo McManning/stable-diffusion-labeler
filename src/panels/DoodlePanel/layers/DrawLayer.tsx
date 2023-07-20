@@ -2,7 +2,7 @@ import { forwardRef, useRef, useState } from "react";
 import Konva from "konva";
 import { Circle, Layer, Rect } from "react-konva";
 import { getRelativePointerPosition, mergeRefs, newId } from "../util";
-import { DoodleTool, PenSettings, setIsDrawing } from "@/features/doodle";
+import { DoodleTool, EraserSettings, PenSettings, setIsDrawing, setTool } from "@/features/doodle";
 import { useAppSelector } from "@/hooks";
 import { useDispatch } from "react-redux";
 import { useCommandHistory } from "@/hooks/useCommandHistory";
@@ -16,24 +16,29 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
 
   const tool = useAppSelector((s) => s.doodle.tool);
   const toolSettings = useAppSelector((s) => s.doodle.toolSettings[s.doodle.tool]);
+  const eraserSettings = useAppSelector((s) => s.doodle.toolSettings[DoodleTool.Eraser]);
   const layerSettings = useAppSelector((s) => s.doodle.layers.find((l) => l.id === 'Draw'));
   const isDrawing = useAppSelector((s) => s.doodle.isDrawing);
   const width = useAppSelector((s) => s.generator.sampler.width);
   const height = useAppSelector((s) => s.generator.sampler.height);
 
+  const [prevTool, setPrevTool] = useState<DoodleTool>();
+
   const { push } = useCommandHistory();
 
   const dispatch = useDispatch();
 
-  let strokeWidth = 0;
-  if ((toolSettings as PenSettings).thickness) {
-    strokeWidth = (toolSettings as PenSettings).thickness;
-  }
 
   const onMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    // Ignore context menu clicks
-    if (e.evt.button !== 0) { // Left
+    // Ignore middle click panning
+    if (e.evt.button === 1) {
       return;
+    }
+
+    // Temporarily activate the eraser on right click
+    if (e.evt.button === 2) {
+      setPrevTool(tool);
+      dispatch((setTool(DoodleTool.Eraser)));
     }
 
     const point = getRelativePointerPosition(
@@ -53,7 +58,16 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
     //   return;
     // }
 
-    if (tool === DoodleTool.Pen || tool === DoodleTool.Eraser) {
+    const isEraser = tool === DoodleTool.Eraser || e.evt.button === 2;
+
+    let strokeWidth = 0;
+    if (isEraser) {
+      strokeWidth = (eraserSettings as EraserSettings).thickness;
+    } else {
+      strokeWidth = (toolSettings as PenSettings).thickness;
+    }
+
+    if (tool === DoodleTool.Pen || isEraser) {
       dispatch(setIsDrawing(true));
 
       setLastLine(() => {
@@ -66,14 +80,14 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
           strokeWidth,
           tension: 0.5, // ??
           globalCompositeOperation:
-            tool === DoodleTool.Eraser ? 'destination-out' : 'source-over',
+            isEraser ? 'destination-out' : 'source-over',
           lineCap: 'round',
           lineJoin: 'round',
           points: [point.x, point.y, point.x, point.y],
           shadowForStrokeEnabled: false,
         });
 
-        if (tool === DoodleTool.Eraser) {
+        if (isEraser) {
           push(new EraseCommand(drawLayerRef.current, line));
         } else {
           push(new DrawCommand(drawLayerRef.current, line));
@@ -114,6 +128,12 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   }
 
   const onStopDrawing = (e: Konva.KonvaEventObject<MouseEvent|TouchEvent>) => {
+    // If we were using a temp tool, switch back to the previous
+    if (prevTool) {
+      dispatch((setTool(prevTool)));
+      setPrevTool(undefined);
+    }
+
     if (!isDrawing) {
       return;
     }
