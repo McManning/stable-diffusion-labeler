@@ -1,5 +1,7 @@
+import { ImageReference } from "@/features/doodle";
 import { GeneratorState } from "@/features/generator";
 import { Color } from "@osuresearch/ui";
+import Konva from "konva";
 
 /**
  * Match category ID to color
@@ -166,5 +168,18 @@ export function createTxt2ImgPayload(
         ]
       }
     }
+  }
+}
+
+export function getTransform(node: Konva.Node): Transform {
+  const { x, y, scaleX, scaleY, skewX, skewY, rotation } = node.getAttrs();
+  return {
+    x,
+    y,
+    scaleX,
+    scaleY,
+    skewX,
+    skewY,
+    rotation,
   }
 }

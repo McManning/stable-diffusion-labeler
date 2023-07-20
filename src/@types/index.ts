@@ -177,3 +177,18 @@ type InProgressImage = {
   eta: number
 }
 
+/**
+ * Representation of a Konva node transform.
+ *
+ * This exists because we don't have a `Node.setTransform(Konva.Transform)`
+ * that correctly applies a global transform.
+ */
+type Transform = {
+  x: number
+  y: number
+  scaleX: number
+  scaleY: number
+  skewX: number
+  skewY: number
+  rotation: number
+}

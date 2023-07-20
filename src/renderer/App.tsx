@@ -11,8 +11,6 @@ import { FlexLayout } from '@/components/FlexLayout';
 // import './App.rui.css';
 import { theme } from './theme';
 import { Sidebar } from '@/components/Sidebar';
-import { Header } from '@/components/Header';
-import { Doodle } from '@/panels/DoodlePanel';
 
 export default function App() {
   const prefersColorScheme = window.matchMedia('(prefers-color-scheme: dark)');

@@ -11,6 +11,7 @@ import { ToolSettings } from './ToolSettings';
 import { ZoomField } from './ZoomField';
 import { ClearDoodleButton } from './ClearDoodleButton';
 import { LayersField } from './LayersField';
+import { useCommandHistory } from '@/hooks/useCommandHistory';
 
 const Root = styled(Stack)(({ theme }) => ({
   position: 'absolute',
@@ -22,6 +23,7 @@ const Root = styled(Stack)(({ theme }) => ({
 
 export function Tools() {
   const tool = useAppSelector((s) => s.doodle.tool);
+  const { undo, redo } = useCommandHistory();
 
   const dispatch = useDispatch();
 
@@ -34,6 +36,9 @@ export function Tools() {
     ['V', () => dispatch(setTool(DoodleTool.BoxCut))],
     ['mod + E', () => dispatch(setTool(DoodleTool.Eraser))],
 
+    ['mod + Z', () => undo()],
+    ['mod + shift + Z', () => redo()],
+    ['mod + Y', () => redo()],
     // ['X', () => {
     //   if (mode === InteractionMode.Mask) {
     //     clearMask();

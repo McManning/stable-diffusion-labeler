@@ -1,5 +1,8 @@
 import { DoodleTool, ImageReference, selectId, setReferences, setTool } from '@/features/doodle';
 import { useAppSelector } from '@/hooks';
+import { useCommandHistory } from '@/hooks/useCommandHistory';
+import { useDoodleStage } from '@/hooks/useDoodleStage';
+import { AddReferenceCommand } from '@/utils/commands';
 import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useDispatch } from 'react-redux';
@@ -37,30 +40,35 @@ function fileToImageReference(file: File): Promise<ImageReference> {
 
 /**
  * Wrapper around the canvas that accepts image files to be
- * added as reference files
+ * inserted as reference files into the active layer
  */
 export function Dropzone({ children }: DropzoneProps) {
   const references = useAppSelector((s) => s.doodle.references);
+  const { getLayerById } = useDoodleStage();
+  const { push } = useCommandHistory();
+
   const dispatch = useDispatch();
 
   const onDrop = useCallback(async (files: File[]) => {
-    // Resolve all dropped file(s) into image references
-    const promises: Promise<ImageReference>[] = [];
-    files.forEach((file) => {
-      promises.push(fileToImageReference(file));
-    });
+    if (files.length < 1) {
+      return;
+    }
 
-    const newReferences = await Promise.all(promises);
+    const reference = await fileToImageReference(files[0]);
+
+    const layer = getLayerById('reference');
+
+    push(new AddReferenceCommand(layer, reference));
 
     // Merge into existing references on the canvas
-    dispatch(setReferences([...references, ...newReferences]));
+    // dispatch(setReferences([...references, ...newReferences]));
 
     // Select the first reference in the batch to manipulate.
     // (don't have multi-select support atm, so just pick one)
     dispatch(setTool(DoodleTool.References));
-    dispatch(selectId(newReferences[0].id));
+    dispatch(selectId(reference.id));
 
-  }, [references, dispatch]);
+  }, [references, dispatch, push, getLayerById]);
 
   const {
     getRootProps,
@@ -69,6 +77,8 @@ export function Dropzone({ children }: DropzoneProps) {
   } = useDropzone({
     onDrop,
     noClick: true,
+    noKeyboard: true,
+    multiple: false,
     accept: {
       'image/*': [],
     }

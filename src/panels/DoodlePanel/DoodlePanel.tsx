@@ -20,6 +20,9 @@ import { GeneratedImages } from "./GeneratedImages";
 import { BackgroundLayer } from "./layers/BackgroundLayer";
 import { GeneratedLayer } from "./layers/GeneratedLayer";
 
+import { Context as CommandHistoryContext, useCommandHistoryProvider } from '@/hooks/useCommandHistory';
+import { HistoryDebug } from "./HistoryDebug";
+
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 5;
 
@@ -29,6 +32,7 @@ export function DoodlePanel() {
   const drawLayerRef = useRef<Konva.Layer>(null);
 
   const dispatch = useDispatch();
+  const historyContext = useCommandHistoryProvider();
 
   const { ref, width, height } = useElementSize<HTMLDivElement>();
 
@@ -136,35 +140,38 @@ export function DoodlePanel() {
       toolSettings={toolSettings[tool]}
       scale={scale}
     >
-      <Dropzone>
-        <Stage
-          id="doodle"
-          ref={stageRef}
-          className="canvas"
-          width={width}
-          height={height}
-          scaleX={scale}
-          scaleY={scale}
-          draggable
+      <CommandHistoryContext.Provider value={historyContext}>
+        <Dropzone>
+          <Stage
+            id="doodle"
+            ref={stageRef}
+            className="canvas"
+            width={width}
+            height={height}
+            scaleX={scale}
+            scaleY={scale}
+            draggable
 
-          // These events need to be on the stage to detect
-          // whether we clicked the stage or an object on it.
-          onMouseDown={checkDeselect}
-          onTouchStart={checkDeselect}
+            // These events need to be on the stage to detect
+            // whether we clicked the stage or an object on it.
+            onMouseDown={checkDeselect}
+            onTouchStart={checkDeselect}
 
-          onWheel={onZoom}
+            onWheel={onZoom}
 
-          onContextMenu={onContextMenu}
-        >
-          <BackgroundLayer />
-          <ReferenceLayer ref={imageRef} />
-          <GeneratedLayer />
-          <DrawLayer ref={drawLayerRef} />
-          <BoundaryLayer />
-        </Stage>
-        <Tools />
-        <GeneratedImages />
-      </Dropzone>
+            onContextMenu={onContextMenu}
+          >
+            <BackgroundLayer />
+            <ReferenceLayer ref={imageRef} />
+            <GeneratedLayer />
+            <DrawLayer ref={drawLayerRef} />
+            <BoundaryLayer />
+          </Stage>
+          <Tools />
+          <GeneratedImages />
+          {/* <HistoryDebug /> */}
+        </Dropzone>
+      </CommandHistoryContext.Provider>
     </Root>
   )
 }

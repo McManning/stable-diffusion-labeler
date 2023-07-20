@@ -17,18 +17,19 @@ export function useDoodleStage() {
     return stage;
   }
 
-  const getDrawLayer = () => {
-    const drawLayer = getStage().getLayers().find((l) => l.id() === 'draw');
-    if (!drawLayer) {
-      throw new Error('Missing layer with id "draw"');
+  const getLayerById = (id: string) => {
+    const layer = getStage().getLayers().find((l) => l.id() === id);
+    if (!layer) {
+      throw new Error(`Missing layer with id '${id}'`);
     }
 
-    return drawLayer;
+    return layer;
   }
 
   return {
+    getLayerById,
     clearDrawLayer: async () => {
-      const draw = getDrawLayer();
+      const draw = getLayerById('draw');
       const lines = draw.find('Line');
       lines.forEach((line) => line.destroy());
 
@@ -39,7 +40,7 @@ export function useDoodleStage() {
     },
     exportDrawLayer: async (width: number, height: number) => {
       const stage = getStage();
-      const drawLayer = getDrawLayer();
+      const drawLayer = getLayerById('draw');
 
       // Hide all layers that aren't the main drawing layer or
       // our background layer (ControlNet doesn't have alpha PNG support)

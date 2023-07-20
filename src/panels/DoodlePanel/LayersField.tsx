@@ -5,12 +5,6 @@ import { Icon } from "@osuresearch/iconography";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 
-
-
-const layers = {
-  draw: {}
-}
-
 export function LayersField() {
   const layers = useAppSelector((s) => s.doodle.layers);
   const dispatch = useDispatch();
@@ -89,8 +83,7 @@ export function LayersField() {
             </div>
           )}
         </Stack>
-
       </Popover>
-  </>
+    </>
   )
 }

@@ -1,12 +1,14 @@
 import { forwardRef, useRef, useLayoutEffect, useEffect, useState } from "react";
 import Konva from "konva";
 import { Layer, Image, Text, Transformer } from "react-konva";
-import useImage from "use-image";
-import { useAppSelector } from '@/hooks';
-import { setImageSize } from '@/features/canvas';
-import { useDispatch } from 'react-redux';
 import { KonvaEventObject } from "konva/lib/Node";
+import useImage from "use-image";
+
+import { useAppSelector } from '@/hooks';
 import { DoodleTool, ImageReference } from "@/features/doodle";
+import { useCommandHistory } from "@/hooks/useCommandHistory";
+import { TransformCommand } from "@/utils/commands";
+import { getTransform } from "@/utils";
 
 export interface ReferenceProps {
   reference: ImageReference
@@ -26,6 +28,7 @@ export function Reference({ reference, isSelected, onSelect, onChange }: Referen
   const imageRef = useRef<Konva.Image>(null);
   const trRef = useRef<Konva.Transformer>(null);
   const [image] = useImage(reference.dataUri);
+  const { push } = useCommandHistory();
 
   const tool = useAppSelector((s) => s.doodle.tool);
 
@@ -40,6 +43,8 @@ export function Reference({ reference, isSelected, onSelect, onChange }: Referen
 
   const showTransformer = isSelected && tool === DoodleTool.References;
 
+  const [from, setFrom] = useState<Transform>();
+
   return (
     <>
       <Image
@@ -47,33 +52,56 @@ export function Reference({ reference, isSelected, onSelect, onChange }: Referen
         onClick={onSelect}
         onTap={onSelect}
         ref={imageRef}
-        draggable={tool === DoodleTool.References}
-        {...reference}
-        onDragEnd={(e) => {
-          onChange({
-            ...reference,
-            x: e.target.x(),
-            y: e.target.y(),
-          });
-        }}
-        onTransformEnd={(e) => {
+        draggable={showTransformer}
+        // {...reference}
+
+        onDragStart={() => {
           const node = imageRef.current;
           if (!node) {
             return;
           }
 
-          const scaleX = node.scaleX();
-          const scaleY = node.scaleY();
+          setFrom(getTransform(node));
+        }}
+        onDragEnd={(e) => {
+          const node = imageRef.current;
+          if (!node || !from) return;
 
-          node.scaleX(1);
-          node.scaleY(1);
-          onChange({
-            ...reference,
-            x: node.x(),
-            y: node.y(),
-            width: Math.max(MINIMUM_RECT_SIZE, node.width() * scaleX),
-            height: Math.max(node.height() * scaleY),
-          });
+          const to = getTransform(node);
+          push(new TransformCommand(node, from, to));
+
+          // onChange({
+          //   ...reference,
+          //   x: e.target.x(),
+          //   y: e.target.y(),
+          // });
+        }}
+        onTransformStart={() => {
+          const node = imageRef.current;
+          if (!node) return;
+
+          setFrom(getTransform(node));
+        }}
+        onTransformEnd={(e) => {
+          const node = imageRef.current;
+          if (!node || !from) return;
+
+          const to = getTransform(node);
+          push(new TransformCommand(node, from, to));
+
+          // const scaleX = node.scaleX();
+          // const scaleY = node.scaleY();
+
+          // node.scaleX(1);
+          // node.scaleY(1);
+
+          // onChange({
+          //   ...reference,
+          //   x: node.x(),
+          //   y: node.y(),
+          //   width: Math.max(MINIMUM_RECT_SIZE, node.width() * scaleX),
+          //   height: Math.max(node.height() * scaleY),
+          // });
         }}
       />
       {/* <Text x={reference.x} y={reference.y} text={reference.id} fill="red" /> */}

@@ -5,6 +5,8 @@ import { getRelativePointerPosition, mergeRefs, newId } from "../util";
 import { DoodleTool, PenSettings, setIsDrawing } from "@/features/doodle";
 import { useAppSelector } from "@/hooks";
 import { useDispatch } from "react-redux";
+import { useCommandHistory } from "@/hooks/useCommandHistory";
+import { DrawCommand, EraseCommand } from "@/utils/commands";
 
 const OVERDRAW_SIZE = 512;
 
@@ -18,6 +20,8 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   const isDrawing = useAppSelector((s) => s.doodle.isDrawing);
   const width = useAppSelector((s) => s.generator.sampler.width);
   const height = useAppSelector((s) => s.generator.sampler.height);
+
+  const { push } = useCommandHistory();
 
   const dispatch = useDispatch();
 
@@ -53,6 +57,10 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
       dispatch(setIsDrawing(true));
 
       setLastLine(() => {
+        if (!drawLayerRef.current) {
+          throw new Error('Missing Draw Layer');
+        }
+
         const line = new Konva.Line({
           stroke: '#ffffff',
           strokeWidth,
@@ -65,7 +73,12 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
           shadowForStrokeEnabled: false,
         });
 
-        drawLayerRef.current?.add(line);
+        if (tool === DoodleTool.Eraser) {
+          push(new EraseCommand(drawLayerRef.current, line));
+        } else {
+          push(new DrawCommand(drawLayerRef.current, line));
+        }
+
         return line;
       });
     }

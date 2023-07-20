@@ -188,6 +188,16 @@ export const doodle = createSlice({
     setReferences: (state, references: PayloadAction<ImageReference[]>) => {
       state.references = references.payload;
     },
+
+    addReference: (state, reference: PayloadAction<ImageReference>) => {
+      state.references = [...state.references, reference.payload];
+    },
+
+    removeReference: (state, reference: PayloadAction<ImageReference>) => {
+      state.references = state.references.filter(
+        (r) => r.id !== reference.payload.id
+      );
+    },
   }
 });
 
@@ -204,6 +214,8 @@ export const {
   setTool,
   setToolSettings,
   setReferences,
+  addReference,
+  removeReference,
 } = doodle.actions;
 
 export const { reducer } = doodle;
