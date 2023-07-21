@@ -1,16 +1,24 @@
-import Konva from "konva";
-import { ImageReference, addReference, removeReference, setReferences } from "@/features/doodle";
+/* eslint-disable class-methods-use-this */
+// eslint-disable-next-line max-classes-per-file
+import Konva from 'konva';
+import {
+  addReference,
+  removeReference,
+  setReferences,
+} from '@/features/doodle';
 import { store } from '@/store';
+import { getTransform } from '.';
 
 export interface ICommand {
-  execute(): void
-  undo(): void
-  release(): void
+  execute(): void;
+  undo(): void;
+  release(): void;
 }
 
 export class DrawCommand implements ICommand {
-  layer: Konva.Layer
-  line: Konva.Line
+  layer: Konva.Layer;
+
+  line: Konva.Line;
 
   constructor(layer: Konva.Layer, line: Konva.Line) {
     this.layer = layer;
@@ -25,16 +33,17 @@ export class DrawCommand implements ICommand {
     this.line.remove();
   }
 
-  public release() { }
+  public release() {}
 
   public toString() {
-    return `Draw: layer=${this.layer.id()}, line=${this.line.id()}`
+    return `Draw: layer=${this.layer.id()}, line=${this.line.id()}`;
   }
 }
 
 export class EraseCommand implements ICommand {
-  layer: Konva.Layer
-  line: Konva.Line
+  layer: Konva.Layer;
+
+  line: Konva.Line;
 
   constructor(layer: Konva.Layer, line: Konva.Line) {
     this.layer = layer;
@@ -49,19 +58,17 @@ export class EraseCommand implements ICommand {
     this.line.remove();
   }
 
-  public release() { }
+  public release() {}
 
   public toString() {
-    return `Erase: layer=${this.layer.id()}, line=${this.line.id()}`
+    return `Erase: layer=${this.layer.id()}, line=${this.line.id()}`;
   }
 }
 
 export class AddReferenceCommand implements ICommand {
-  layer: Konva.Layer
-  reference: ImageReference
+  reference: ImageReference;
 
-  constructor(layer: Konva.Layer, reference: ImageReference) {
-    this.layer = layer;
+  constructor(reference: ImageReference) {
     this.reference = reference;
   }
 
@@ -73,19 +80,17 @@ export class AddReferenceCommand implements ICommand {
     store.dispatch(removeReference(this.reference));
   }
 
-  public release() { }
+  public release() {}
 
   public toString() {
-    return `Add Reference: layer=${this.layer.id()}, ref=${this.reference.id}`
+    return `Add Reference: ref=${this.reference.id}`;
   }
 }
 
 export class RemoveReferenceCommand implements ICommand {
-  layer: Konva.Layer
-  reference: ImageReference
+  reference: ImageReference;
 
-  constructor(layer: Konva.Layer, reference: ImageReference) {
-    this.layer = layer;
+  constructor(reference: ImageReference) {
     this.reference = reference;
   }
 
@@ -97,17 +102,19 @@ export class RemoveReferenceCommand implements ICommand {
     store.dispatch(addReference(this.reference));
   }
 
-  public release() { }
+  public release() {}
 
   public toString() {
-    return `Remove Reference: layer=${this.layer.id()}, ref=${this.reference.id}`
+    return `Remove Reference: ref=${this.reference.id}`;
   }
 }
 
 export class TransformCommand implements ICommand {
-  shape: Konva.Shape
-  from: Transform
-  to: Transform
+  shape: Konva.Shape;
+
+  from: Transform;
+
+  to: Transform;
 
   constructor(shape: Konva.Shape, from: Transform, to: Transform) {
     this.shape = shape;
@@ -127,19 +134,21 @@ export class TransformCommand implements ICommand {
     this.shape.setAttrs(trs);
   }
 
-  public release() { }
+  public release() {}
 
   public toString() {
     const fromTrans = this.from;
     const toTrans = this.to;
-    return `Transform: shape=${this.shape.id()} from=(${fromTrans.x}, ${fromTrans.y}) to=(${toTrans.x}, ${toTrans.y})`
+    return `Transform: shape=${this.shape.id()} from=(${fromTrans.x}, ${
+      fromTrans.y
+    }) to=(${toTrans.x}, ${toTrans.y})`;
   }
 }
 
 export class ClearCommand implements ICommand {
-  layer: Konva.Layer
+  layer: Konva.Layer;
 
-  nodes: Konva.Node[]
+  nodes: Konva.Node[];
 
   constructor(layer: Konva.Layer) {
     this.layer = layer;
@@ -171,6 +180,6 @@ export class ClearCommand implements ICommand {
   }
 
   public toString() {
-    return `Clear: layer=${this.layer.id()}`
+    return `Clear: layer=${this.layer.id()}`;
   }
 }

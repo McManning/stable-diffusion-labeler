@@ -1,21 +1,22 @@
-
 import { uniqueId } from 'lodash';
 import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useDispatch } from 'react-redux';
 
-import { DoodleTool, ImageReference, selectId, setReferences, setTool } from '@/features/doodle';
+import { DoodleTool, selectId, setTool } from '@/features/doodle';
 import { useAppSelector } from '@/hooks';
 import { useCommandHistory } from '@/hooks/useCommandHistory';
 import { useDoodleStage } from '@/hooks/useDoodleStage';
 import { AddReferenceCommand } from '@/utils/commands';
 
 export interface DropzoneProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-
-function fileToImageReference(file: File, layerId: string): Promise<ImageReference> {
+function fileToImageReference(
+  file: File,
+  layerId: string
+): Promise<ImageReference> {
   return new Promise((resolve) => {
     const dataUrl = URL.createObjectURL(file);
     const img = new Image();
@@ -36,7 +37,7 @@ function fileToImageReference(file: File, layerId: string): Promise<ImageReferen
 
       // Don't want to release, need it for Konva.
       // URL.revokeObjectURL(img.src);
-    }
+    };
 
     img.src = dataUrl;
   });
@@ -53,43 +54,39 @@ export function Dropzone({ children }: DropzoneProps) {
 
   const dispatch = useDispatch();
 
-  const onDrop = useCallback(async (files: File[]) => {
-    if (files.length < 1) {
-      return;
-    }
+  const onDrop = useCallback(
+    async (files: File[]) => {
+      if (files.length < 1) {
+        return;
+      }
 
-    // TODO: Preference check (or automatic) here.
-    // Whatever the active layer is - that's what we add new files to.
-    // BUT! There should be a preference for always loading images to the reference layer.
+      // TODO: Preference check (or automatic) here.
+      // Whatever the active layer is - that's what we add new files to.
+      // BUT! There should be a preference for always loading images to the reference layer.
 
-    const reference = await fileToImageReference(files[0], 'Reference');
+      const reference = await fileToImageReference(files[0], 'Reference');
 
-    const layer = getKonvaLayerById('reference');
+      push(new AddReferenceCommand(reference));
 
-    push(new AddReferenceCommand(layer, reference));
+      // Merge into existing references on the canvas
+      // dispatch(setReferences([...references, ...newReferences]));
 
-    // Merge into existing references on the canvas
-    // dispatch(setReferences([...references, ...newReferences]));
+      // Select the first reference in the batch to manipulate.
+      // (don't have multi-select support atm, so just pick one)
+      dispatch(setTool(DoodleTool.References));
+      dispatch(selectId(reference.id));
+    },
+    [dispatch, push]
+  );
 
-    // Select the first reference in the batch to manipulate.
-    // (don't have multi-select support atm, so just pick one)
-    dispatch(setTool(DoodleTool.References));
-    dispatch(selectId(reference.id));
-
-  }, [references, dispatch, push, getKonvaLayerById]);
-
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-  } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     noClick: true,
     noKeyboard: true,
     multiple: false,
     accept: {
       'image/*': [],
-    }
+    },
   });
 
   return (
@@ -97,5 +94,5 @@ export function Dropzone({ children }: DropzoneProps) {
       <input {...getInputProps()} />
       {children}
     </div>
-  )
+  );
 }

@@ -1,12 +1,19 @@
-import { forwardRef, useRef, useState } from "react";
-import Konva from "konva";
-import { Circle, Layer, Rect } from "react-konva";
-import { getRelativePointerPosition, mergeRefs, newId } from "../util";
-import { DoodleTool, EraserSettings, PenSettings, setIsDrawing, setTool } from "@/features/doodle";
-import { useAppSelector } from "@/hooks";
-import { useDispatch } from "react-redux";
-import { useCommandHistory } from "@/hooks/useCommandHistory";
-import { DrawCommand, EraseCommand } from "@/utils/commands";
+import { forwardRef, useRef, useState } from 'react';
+import Konva from 'konva';
+import { Circle, Layer, Rect } from 'react-konva';
+
+import {
+  DoodleTool,
+  EraserSettings,
+  PenSettings,
+  setIsDrawing,
+  setTool,
+} from '@/features/doodle';
+import { useAppSelector } from '@/hooks';
+import { useDispatch } from 'react-redux';
+import { useCommandHistory } from '@/hooks/useCommandHistory';
+import { DrawCommand, EraseCommand } from '@/utils/commands';
+import { getRelativePointerPosition, mergeRefs, newId } from '../util';
 
 const OVERDRAW_SIZE = 512;
 
@@ -15,9 +22,15 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
   const drawLayerRef = useRef<Konva.Layer>(null);
 
   const tool = useAppSelector((s) => s.doodle.tool);
-  const toolSettings = useAppSelector((s) => s.doodle.toolSettings[s.doodle.tool]);
-  const eraserSettings = useAppSelector((s) => s.doodle.toolSettings[DoodleTool.Eraser]);
-  const layerSettings = useAppSelector((s) => s.doodle.layers.find((l) => l.id === 'Draw'));
+  const toolSettings = useAppSelector(
+    (s) => s.doodle.toolSettings[s.doodle.tool]
+  );
+  const eraserSettings = useAppSelector(
+    (s) => s.doodle.toolSettings[DoodleTool.Eraser]
+  );
+  const layerSettings = useAppSelector((s) =>
+    s.doodle.layers.find((l) => l.id === 'Draw')
+  );
   const isDrawing = useAppSelector((s) => s.doodle.isDrawing);
   const width = useAppSelector((s) => s.generator.sampler.width);
   const height = useAppSelector((s) => s.generator.sampler.height);
@@ -28,7 +41,6 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
 
   const dispatch = useDispatch();
 
-
   const onMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     // Ignore middle click panning
     if (e.evt.button === 1) {
@@ -38,7 +50,7 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
     // Temporarily activate the eraser on right click
     if (e.evt.button === 2) {
       setPrevTool(tool);
-      dispatch((setTool(DoodleTool.Eraser)));
+      dispatch(setTool(DoodleTool.Eraser));
     }
 
     const point = getRelativePointerPosition(
@@ -79,8 +91,9 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
           stroke: '#ffffff',
           strokeWidth,
           tension: 0.5, // ??
-          globalCompositeOperation:
-            isEraser ? 'destination-out' : 'source-over',
+          globalCompositeOperation: isEraser
+            ? 'destination-out'
+            : 'source-over',
           lineCap: 'round',
           lineJoin: 'round',
           points: [point.x, point.y, point.x, point.y],
@@ -96,9 +109,9 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
         return line;
       });
     }
-  }
+  };
 
-  const onDrag = (e: Konva.KonvaEventObject<MouseEvent|TouchEvent>) => {
+  const onDrag = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     if (!isDrawing) {
       return;
     }
@@ -109,7 +122,6 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
     const point = getRelativePointerPosition(
       e.target.getStage() as Konva.Stage
     );
-
 
     // if (tool === DoodleTool.Mask) {
     //   const lastRegion = { ...regions[regions.length - 1] };
@@ -125,12 +137,14 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
       const newPoints = lastLine.points().concat([point.x, point.y]);
       lastLine.points(newPoints);
     }
-  }
+  };
 
-  const onStopDrawing = (e: Konva.KonvaEventObject<MouseEvent|TouchEvent>) => {
+  const onStopDrawing = (
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) => {
     // If we were using a temp tool, switch back to the previous
     if (prevTool) {
-      dispatch((setTool(prevTool)));
+      dispatch(setTool(prevTool));
       setPrevTool(undefined);
     }
 
@@ -148,11 +162,10 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
     // }
 
     if (tool === DoodleTool.Pen) {
-
     }
 
     dispatch(setIsDrawing(false));
-  }
+  };
 
   // Only listen for events while using draw tools.
   // This'll let other layers (e.g. references) be manipulated when
@@ -169,7 +182,6 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
       onMouseMove={onDrag}
       onMouseUp={onStopDrawing}
       onMouseLeave={onStopDrawing}
-
       onTouchMove={onDrag}
       onTouchEnd={onStopDrawing}
       visible={layerSettings?.visible}
@@ -184,4 +196,3 @@ export const DrawLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
     </Layer>
   );
 });
-

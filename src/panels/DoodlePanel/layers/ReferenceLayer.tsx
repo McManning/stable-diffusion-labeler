@@ -1,23 +1,27 @@
-import { forwardRef, useRef, useLayoutEffect, useEffect, useState } from "react";
-import Konva from "konva";
-import { Layer, Image, Rect, Transformer, Text } from "react-konva";
-import useImage from "use-image";
+import { forwardRef, useRef, useEffect } from 'react';
+import Konva from 'konva';
+import { Layer, Image, Rect, Transformer, Text } from 'react-konva';
 import { useAppSelector } from '@/hooks';
 import { useDispatch } from 'react-redux';
-import { KonvaEventObject } from "konva/lib/Node";
-import { DoodleTool, setReferences, selectId } from "@/features/doodle";
-import { Reference } from "../Reference";
+import { KonvaEventObject } from 'konva/lib/Node';
+import { References } from '../References';
+import { DoodleTool } from '@/features/doodle';
 
 interface RectangleProps {
-  shapeProps: any
-  onChange: (props: any) => void
-  isSelected: boolean
-  onSelect: (evt: KonvaEventObject<Event>) => void
+  shapeProps: any;
+  onChange: (props: any) => void;
+  isSelected: boolean;
+  onSelect: (evt: KonvaEventObject<Event>) => void;
 }
 
 const MINIMUM_RECT_SIZE = 5;
 
-function Rectangle({ shapeProps, isSelected, onSelect, onChange }: RectangleProps) {
+function Rectangle({
+  shapeProps,
+  isSelected,
+  onSelect,
+  onChange,
+}: RectangleProps) {
   const shapeRef = useRef<Konva.Rect>(null);
   const trRef = useRef<Konva.Transformer>(null);
 
@@ -73,7 +77,10 @@ function Rectangle({ shapeProps, isSelected, onSelect, onChange }: RectangleProp
         <Transformer
           ref={trRef}
           boundBoxFunc={(oldBox, newBox) => {
-            if (newBox.width < MINIMUM_RECT_SIZE || newBox.height < MINIMUM_RECT_SIZE) {
+            if (
+              newBox.width < MINIMUM_RECT_SIZE ||
+              newBox.height < MINIMUM_RECT_SIZE
+            ) {
               return oldBox;
             }
             return newBox;
@@ -91,12 +98,10 @@ function Rectangle({ shapeProps, isSelected, onSelect, onChange }: RectangleProp
 export const ReferenceLayer = forwardRef<Konva.Image, {}>((_, ref) => {
   const layerRef = useRef<Konva.Layer>(null);
 
-  const selectedId = useAppSelector((s) => s.doodle.selectedId);
   const brightness = useAppSelector((s) => s.doodle.brightness);
-  const references = useAppSelector((s) => s.doodle.references);
-  const layerSettings = useAppSelector((s) => s.doodle.layers.find((l) => l.id === 'Reference'));
-
-  const dispatch = useDispatch();
+  const layerSettings = useAppSelector((s) =>
+    s.doodle.layers.find((l) => l.id === 'Reference')
+  );
 
   useEffect(() => {
     if (!layerRef.current) {
@@ -105,7 +110,7 @@ export const ReferenceLayer = forwardRef<Konva.Image, {}>((_, ref) => {
 
     // eslint-disable-next-line no-underscore-dangle
     const canvas = layerRef.current.getCanvas()._canvas;
-    canvas.style.filter = `brightness(${(brightness ) * 100}%)`;
+    canvas.style.filter = `brightness(${brightness * 100}%)`;
   }, [brightness]);
 
   return (
@@ -115,30 +120,7 @@ export const ReferenceLayer = forwardRef<Konva.Image, {}>((_, ref) => {
       visible={layerSettings?.visible}
       opacity={layerSettings?.opacity}
     >
-      {references.map((r, i) => (
-        <Reference
-          key={r.id}
-          reference={r}
-          isSelected={r.id === selectedId}
-          onSelect={() => {
-            dispatch(selectId(r.id));
-
-            // Bring to front
-            const refs = references.slice();
-            const index = refs.findIndex((x) => x.id === r.id);
-
-            refs.splice(index, 1);
-            refs.push(r);
-            dispatch(setReferences(refs));
-          }}
-          onChange={(newAttrs) => {
-            const refs = references.slice();
-            refs[i] = newAttrs;
-            dispatch(setReferences(refs));
-          }}
-        />
-      ))}
-      {/* <Text x={0} y={0} text={selectedId ?? 'Not selected'} fill="red" /> */}
+      <References layerId="Reference" />
     </Layer>
   );
 });

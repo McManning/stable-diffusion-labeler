@@ -113,7 +113,7 @@ export function FlexLayout(props: FlexLayoutProps) {
           tabEnableRename: false,
           tabEnableClose: false,
           tabSetEnableMaximize: false,
-          tabSetMinWidth: 100,
+          tabSetMinWidth: 400,
           tabSetMinHeight: 100,
           splitterSize: 2,
           splitterExtra: 6,
@@ -124,11 +124,11 @@ export function FlexLayout(props: FlexLayoutProps) {
           children: [
             {
               type: 'row',
-              weight: 50,
+              weight: 80,
               children: [
                 {
                   type: 'tabset',
-                  weight: 75,
+                  weight: 100,
                   enableTabStrip: false,
                   children: [
                     {
@@ -141,38 +141,51 @@ export function FlexLayout(props: FlexLayoutProps) {
               ],
             },
             {
-              type: 'tabset',
+              type: 'row',
               weight: 20,
               children: [
                 {
-                  type: 'tab',
-                  name: 'Sampler',
-                  component: 'sampler',
+                  type: 'tabset',
+                  weight: 40,
+                  children: [
+                    {
+                      type: 'tab',
+                      name: 'Prompt',
+                      component: 'prompt',
+                    },
+                  ]
                 },
                 {
-                  type: 'tab',
-                  name: 'ControlNet',
-                  component: 'controlNet',
-                },
-                {
-                  type: 'tab',
-                  name: 'Blend',
-                  component: 'blend',
-                },
-                {
-                  type: 'tab',
-                  name: 'Prompt',
-                  component: 'prompt',
-                },
-                {
-                  type: 'tab',
-                  name: 'Settings',
-                  component: 'settings',
-                },
-              ]
-            },
+                  type: 'tabset',
+                  weight: 60,
+                  children: [
+                    {
+                      type: 'tab',
+                      name: 'Blend',
+                      component: 'blend',
+                    },
+                    {
+                      type: 'tab',
+                      name: 'Sampler',
+                      component: 'sampler',
+                    },
+                    {
+                      type: 'tab',
+                      name: 'ControlNet',
+                      component: 'controlNet',
+                    },
+                    {
+                      type: 'tab',
+                      name: 'Settings',
+                      component: 'settings',
+                      enableClose: true,
+                    },
+                  ]
+                }
+              ],
+            }
           ]
-        }
+        },
       }));
     }
     else {

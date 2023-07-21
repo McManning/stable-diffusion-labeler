@@ -1,4 +1,3 @@
-
 /** Generator templates */
 
 export const DEFAULT_TEMPLATE: GeneratorTemplate = {
@@ -8,7 +7,7 @@ export const DEFAULT_TEMPLATE: GeneratorTemplate = {
     negative: '',
   },
   sampler: {
-    useVAE: false,
+    useVAE: true,
     width: 768,
     height: 768,
     steps: 20,
@@ -31,7 +30,7 @@ export const DEFAULT_TEMPLATE: GeneratorTemplate = {
         label: 'Common negative',
         help: 'Frequently used negatives using FastNegativeV2 for fixing hands, bad composition, etc',
         weight: 1,
-        negative: '(FastNegativeV2:{weight})'
+        negative: '(FastNegativeV2:{weight})',
       },
       ATv4: {
         label: 'Adventure Time (v4)',
@@ -59,8 +58,8 @@ export const DEFAULT_TEMPLATE: GeneratorTemplate = {
         weight: 0,
         positive: '<lyco:HorrorBundlev4:{weight}> TrypophobiaAI',
       },
-    }
-  }
+    },
+  },
 };
 
 const CHARACTER_DESIGN: GeneratorTemplate = {
@@ -78,8 +77,4 @@ const PROP_SHEET: GeneratorTemplate = {
   name: 'Prop Sheet',
 };
 
-export const TEMPLATES = [
-  CHARACTER_DESIGN,
-  ENVIRONMENT_DESIGN,
-  PROP_SHEET,
-];
+export const TEMPLATES = [CHARACTER_DESIGN, ENVIRONMENT_DESIGN, PROP_SHEET];

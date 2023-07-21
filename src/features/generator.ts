@@ -4,27 +4,27 @@ import merge from 'lodash/merge';
 import { DEFAULT_TEMPLATE, TEMPLATES } from '@/templates';
 
 export type GeneratorState = {
-  templates: GeneratorTemplate[]
+  templates: GeneratorTemplate[];
 
-  prompt: PromptSettings
-  sampler: SamplerSettings
-  controlNet: ControlNetSettings
-  blend: BlendSettings
+  prompt: PromptSettings;
+  sampler: SamplerSettings;
+  controlNet: ControlNetSettings;
+  blend: BlendSettings;
 
   /** Previously generated images */
-  images: GeneratedImage[]
+  images: GeneratedImage[];
 
   /**
    * Are we currently generating new images
    */
-  generating: boolean
+  generating: boolean;
 
   /** Last error while generating new images */
-  error?: string
+  error?: string;
 
   /** "in progress" image being generated */
-  progressImage?: InProgressImage
-}
+  progressImage?: InProgressImage;
+};
 
 const initialState: GeneratorState = {
   templates: TEMPLATES,
@@ -44,12 +44,15 @@ export const generator = createSlice({
   initialState,
   reducers: {
     updatePrompt: (state, update: PayloadAction<Partial<PromptSettings>>) => {
-      state.prompt = merge(state.blend, update.payload);
+      state.prompt = merge(state.prompt, update.payload);
     },
     updateSampler: (state, update: PayloadAction<Partial<SamplerSettings>>) => {
       state.sampler = merge(state.sampler, update.payload);
     },
-    updateControlNet: (state, update: PayloadAction<Partial<ControlNetSettings>>) => {
+    updateControlNet: (
+      state,
+      update: PayloadAction<Partial<ControlNetSettings>>
+    ) => {
       state.controlNet = merge(state.controlNet, update.payload);
     },
     updateBlend: (state, update: PayloadAction<Partial<BlendSettings>>) => {
@@ -58,23 +61,23 @@ export const generator = createSlice({
     setGenerating: (state, value: PayloadAction<boolean>) => {
       state.generating = value.payload;
     },
-    setError: (state, value: PayloadAction<string|undefined>) => {
+    setError: (state, value: PayloadAction<string | undefined>) => {
       state.error = value.payload;
     },
-    setProgressImage: (state, value: PayloadAction<InProgressImage|undefined>) => {
+    setProgressImage: (
+      state,
+      value: PayloadAction<InProgressImage | undefined>
+    ) => {
       state.progressImage = value.payload;
     },
     addImages: (state, images: PayloadAction<GeneratedImage[]>) => {
-      state.images = [
-        ...state.images,
-        ...images.payload,
-      ];
+      state.images = [...state.images, ...images.payload];
     },
 
     clearImages: (state) => {
       state.images = [];
-    }
-  }
+    },
+  },
 });
 
 export const {

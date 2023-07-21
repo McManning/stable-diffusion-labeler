@@ -4,14 +4,14 @@ import { useCommandHistory } from "@/hooks/useCommandHistory";
 import { ClearCommand } from "@/utils/commands";
 
 export function ClearDoodleButton() {
-  const { getLayerById } = useDoodleStage();
+  const { getKonvaLayerById } = useDoodleStage();
   const { push } = useCommandHistory();
 
   const onClick = () => {
-    push(new ClearCommand(getLayerById('draw')));
+    push(new ClearCommand(getKonvaLayerById('draw')));
   }
 
   return (
-    <Button onClick={onClick}>Clear</Button>
+    <Button variant="outlined" onClick={onClick}>Clear</Button>
   )
 }

@@ -3,21 +3,32 @@ import { forwardRef, useEffect, useRef, useState } from 'react';
 import { WithContext as ReactTags } from 'react-tag-input';
 
 import styles from './index.module.css';
-import { Box, BoxProps, FormControl, FormHelperText, Input, InputBase, InputLabel, OutlinedInput, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  BoxProps,
+  FormControl,
+  FormHelperText,
+  Input,
+  InputBase,
+  InputLabel,
+  OutlinedInput,
+  TextField,
+  Typography,
+} from '@mui/material';
 
 import { styled, alpha } from '@mui/material/styles';
 
 export type Tag = {
-  id: string
-  text: string
-  className?: string
-}
+  id: string;
+  text: string;
+  className?: string;
+};
 
 export interface TagsFieldProps {
-  label: React.ReactNode
-  name: string
-  value?: string
-  onChange?: (value: string) => void
+  label: React.ReactNode;
+  name: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 const KeyCodes = {
@@ -28,7 +39,7 @@ const KeyCodes = {
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
 interface TagsProps extends BoxProps {
-  focused?: boolean
+  focused?: boolean;
 }
 
 const Tags = styled(Box)<TagsProps>(({ focused, theme }) => ({
@@ -62,7 +73,7 @@ const Tags = styled(Box)<TagsProps>(({ focused, theme }) => ({
   '& .ReactTags__tagInput': {
     width: 200,
     display: 'inline-block',
-    marginLeft: 4
+    marginLeft: 4,
   },
   '& .ReactTags__tagInputField, & .ReactTags__editTagInputField': {
     fontSize: '1rem',
@@ -72,7 +83,7 @@ const Tags = styled(Box)<TagsProps>(({ focused, theme }) => ({
     outline: 'none',
     '&::placeholder': {
       color: '#FFF',
-    }
+    },
   },
   '& .ReactTags__suggestions': {
     position: 'absolute',
@@ -86,14 +97,14 @@ const Tags = styled(Box)<TagsProps>(({ focused, theme }) => ({
     },
     li: {
       padding: '4px 12px',
-    }
+    },
   },
   '& .ReactTags__activeSuggestion': {
     cursor: 'pointer',
     backgroundColor: alpha(
       theme.palette.primary.main,
       theme.palette.action.selectedOpacity
-    )
+    ),
   },
 
   // Tag classes in ReactTags
@@ -101,10 +112,9 @@ const Tags = styled(Box)<TagsProps>(({ focused, theme }) => ({
     color: 'red',
   },
   '& .tag-lora': {
-    color: 'green'
-  }
+    color: 'green',
+  },
 }));
-
 
 /**
  * Does the tag represent a LoRA (*or* a LyCORIS)
@@ -132,23 +142,11 @@ function assignTagClass(tag: Tag): Tag {
   return { ...tag };
 }
 
-// const InteractiveContent = forwardRef((props, ref) =>
-//   <input {...props} ref={ref} />
-// );
-
-
-// function Interactive() {
-//   const ref = useRef<HTMLDivElement>(null);
-
-//   return (
-//     <OutlinedInput inputRef={ref} inputComponent={InteractiveContent} />
-//   )
-// }
-
 function textToTags(text: string): Tag[] {
-  return text.split(',').filter((t) => t.length).map<Tag>(
-    (t) => assignTagClass({ id: t, text: t })
-  );
+  return text
+    .split(',')
+    .filter((t) => t.length)
+    .map<Tag>((t) => assignTagClass({ id: t, text: t }));
 }
 
 function tagsToText(tags: Tag[]): string {
@@ -156,7 +154,6 @@ function tagsToText(tags: Tag[]): string {
 }
 
 export function TagsField(props: TagsFieldProps) {
-
   const { label, name, value, onChange } = props;
 
   const [focused, setFocused] = useState(false);
@@ -165,7 +162,7 @@ export function TagsField(props: TagsFieldProps) {
   const suggestions: Tag[] = [
     { id: 'Japan', text: 'Japan' },
     { id: 'Jargon', text: 'Jargon' },
-  ]
+  ];
 
   const [tags, setTags] = useState<Tag[]>([]);
 
@@ -178,7 +175,7 @@ export function TagsField(props: TagsFieldProps) {
     if (onChange) {
       onChange(tagsToText(newTags));
     }
-  }
+  };
 
   const handleDelete = (i: number) => {
     replaceTags(tags.filter((tag, index) => index !== i));
@@ -206,18 +203,18 @@ export function TagsField(props: TagsFieldProps) {
   const handleTagUpdate = (index: number, tag: Tag) => {
     tags[index] = assignTagClass(tag);
     replaceTags([...tags]);
-  }
+  };
 
   const handleInputBlur = (textInputValue: string) => {
     if (textInputValue.length > 0) {
       handleAddition({ id: textInputValue, text: textInputValue });
     }
     setFocused(false);
-  }
+  };
 
   return (
     <Tags focused={focused}>
-      <Typography component="label" htmlFor={name} fontSize={12}>
+      <Typography component="label" htmlFor={name} display="block" mb={1}>
         {label}
       </Typography>
       <ReactTags
@@ -237,13 +234,10 @@ export function TagsField(props: TagsFieldProps) {
         inputFieldPosition="inline"
         autocomplete
         inline
-
         // @ts-ignore - type information is out of date.
         editable
         onTagUpdate={handleTagUpdate}
       />
     </Tags>
-  )
-
+  );
 }
-

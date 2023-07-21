@@ -1,15 +1,19 @@
-import { DoodleTool, PenSettings, ToolSettings, doodle } from "@/features/doodle";
-import { Box, BoxProps, styled } from "@mui/material";
+import {
+  DoodleTool,
+  PenSettings,
+  ToolSettings,
+  doodle,
+} from '@/features/doodle';
+import { Box, BoxProps, styled } from '@mui/material';
 
 export interface RootProps {
-  tool: DoodleTool
-  toolSettings: ToolSettings
-  scale: number
+  tool: DoodleTool;
+  toolSettings: ToolSettings;
+  scale: number;
 }
 
 // TODO: Optimize. This gets executed every mouse down
 function makePenCursor(strokeWidth: number, scale: number) {
-
   const size = strokeWidth * scale;
   const xpad = 0; // strokeWidth * 0.5;
 
@@ -25,8 +29,12 @@ function makePenCursor(strokeWidth: number, scale: number) {
 
   const template = `
     <svg xmlns="http://www.w3.org/2000/svg" height="${size}" width="${size}">
-      <line x1="${size / 2}" y1="${0}" x2="${size / 2}" y2="${size}" stroke="white" />
-      <line x1="${0}" y1="${size / 2}" x2="${size}" y2="${size / 2}" stroke="white" />
+      <line x1="${size / 2}" y1="${0}" x2="${
+    size / 2
+  }" y2="${size}" stroke="white" />
+      <line x1="${0}" y1="${size / 2}" x2="${size}" y2="${
+    size / 2
+  }" stroke="white" />
     </svg>
   `;
 
@@ -36,13 +44,15 @@ function makePenCursor(strokeWidth: number, scale: number) {
   const encoded = template
     .replaceAll('<', '%3C')
     .replaceAll('>', '%3E')
-    .replaceAll('"', '\'')
+    .replaceAll('"', "'")
     .replaceAll('\n', '')
     .trim();
 
   console.log(encoded);
 
-  return `url("data:image/svg+xml,${encoded}") ${size * 0.5} ${size * 0.5}, crosshair;`;
+  return `url("data:image/svg+xml,${encoded}") ${size * 0.5} ${
+    size * 0.5
+  }, crosshair;`;
 }
 
 function computeCursor({ tool, toolSettings, scale }: RootProps) {
@@ -67,5 +77,4 @@ export const Root = styled(Box)<RootProps>((props) => ({
   background: '#000000',
 
   cursor: computeCursor(props),
-
 }));

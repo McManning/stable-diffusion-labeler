@@ -1,27 +1,36 @@
-import React, { useRef, useEffect, useState } from "react";
-import { Box } from "@mui/material";
-import Konva from "konva";
-import { Rect, Stage } from "react-konva";
+import React, { useRef, useEffect, useState } from 'react';
+import { Box } from '@mui/material';
+import Konva from 'konva';
+import { Rect, Stage } from 'react-konva';
 import { useDispatch } from 'react-redux';
 
 import { useAppSelector } from '@/hooks';
-import { useElementSize } from "@/hooks/useElementSize";
-import { DoodleTool, PenSettings, selectId, setIsDrawing, setRegions, setScale } from '@/features/doodle';
+import { useElementSize } from '@/hooks/useElementSize';
+import {
+  DoodleTool,
+  selectId,
+  setIsDrawing,
+  setRegions,
+  setScale,
+} from '@/features/doodle';
 import { openContextMenu } from '@/features/settings';
 
-import { ReferenceLayer } from "./layers/ReferenceLayer";
+import { ReferenceLayer } from './layers/ReferenceLayer';
 import { getRelativePointerPosition, newId } from './util';
-import { Tools } from "./Tools";
-import { DrawLayer } from "./layers/DrawLayer";
-import { Root } from "./Doodle.styles";
-import { Dropzone } from "./Dropzone";
-import { BoundaryLayer } from "./layers/BoundaryLayer";
-import { GeneratedImages } from "./GeneratedImages";
-import { BackgroundLayer } from "./layers/BackgroundLayer";
-import { GeneratedLayer } from "./layers/GeneratedLayer";
+import { Tools } from './Tools';
+import { DrawLayer } from './layers/DrawLayer';
+import { Root } from './Doodle.styles';
+import { Dropzone } from './Dropzone';
+import { BoundaryLayer } from './layers/BoundaryLayer';
+import { GeneratedImages } from './GeneratedImages';
+import { BackgroundLayer } from './layers/BackgroundLayer';
+import { GeneratedLayer } from './layers/GeneratedLayer';
 
-import { Context as CommandHistoryContext, useCommandHistoryProvider } from '@/hooks/useCommandHistory';
-import { HistoryDebug } from "./HistoryDebug";
+import {
+  Context as CommandHistoryContext,
+  useCommandHistoryProvider,
+} from '@/hooks/useCommandHistory';
+import { HistoryDebug } from './HistoryDebug';
 
 const MIN_SCALE = 0.1;
 const MAX_SCALE = 5;
@@ -45,8 +54,8 @@ export function DoodlePanel() {
   useEffect(() => {
     stageRef.current?.scale({ x: 1, y: 1 });
     stageRef.current?.position({
-      x: 0.5 * width - (0.5 * samplerWidth),
-      y: 0.5 * height - (0.5 * samplerHeight),
+      x: 0.5 * width - 0.5 * samplerWidth,
+      y: 0.5 * height - 0.5 * samplerHeight,
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,7 +78,7 @@ export function DoodlePanel() {
     if (clickedOnEmpty) {
       dispatch(selectId(undefined));
     }
-  }
+  };
 
   // Zoom relative to the cursor on mouse scroll (desktop mode)
   const onZoom = (e: Konva.KonvaEventObject<WheelEvent>) => {
@@ -78,7 +87,8 @@ export function DoodlePanel() {
 
     e.evt.preventDefault();
 
-    const isModifierDown = e.evt.getModifierState('Control') || e.evt.getModifierState('Meta');
+    const isModifierDown =
+      e.evt.getModifierState('Control') || e.evt.getModifierState('Meta');
     if (!isModifierDown) {
       return;
     }
@@ -105,7 +115,7 @@ export function DoodlePanel() {
     stage.position(newPos);
 
     dispatch(setScale(newScale));
-  }
+  };
 
   const onContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
     e.evt.preventDefault();
@@ -125,21 +135,19 @@ export function DoodlePanel() {
     // insert.
     // Ooorrr just e.evt.clientX/Y...
 
-    dispatch(openContextMenu({
-      context: 'canvas',
-      position: {
-        x: e.evt.clientX,
-        y: e.evt.clientY
-      }
-    }));
-  }
+    dispatch(
+      openContextMenu({
+        context: 'canvas',
+        position: {
+          x: e.evt.clientX,
+          y: e.evt.clientY,
+        },
+      })
+    );
+  };
 
   return (
-    <Root ref={ref}
-      tool={tool}
-      toolSettings={toolSettings[tool]}
-      scale={scale}
-    >
+    <Root ref={ref} tool={tool} toolSettings={toolSettings[tool]} scale={scale}>
       <CommandHistoryContext.Provider value={historyContext}>
         <Dropzone>
           <Stage
@@ -151,14 +159,11 @@ export function DoodlePanel() {
             scaleX={scale}
             scaleY={scale}
             draggable
-
             // These events need to be on the stage to detect
             // whether we clicked the stage or an object on it.
             onMouseDown={checkDeselect}
             onTouchStart={checkDeselect}
-
             onWheel={onZoom}
-
             onContextMenu={onContextMenu}
           >
             <BackgroundLayer />
@@ -173,6 +178,5 @@ export function DoodlePanel() {
         </Dropzone>
       </CommandHistoryContext.Provider>
     </Root>
-  )
+  );
 }
-

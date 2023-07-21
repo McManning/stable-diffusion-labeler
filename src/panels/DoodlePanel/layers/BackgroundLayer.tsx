@@ -1,8 +1,7 @@
-
-import { forwardRef, useRef } from "react";
-import Konva from "konva";
-import { Layer, Rect } from "react-konva";
-import { useAppSelector } from "@/hooks";
+import { forwardRef, useRef } from 'react';
+import Konva from 'konva';
+import { Layer, Rect } from 'react-konva';
+import { useAppSelector } from '@/hooks';
 
 /**
  * Display a solid background color. Used for exporting PNGs with non-alpha backgrounds
@@ -17,4 +16,3 @@ export const BackgroundLayer = forwardRef<Konva.Layer, {}>((_, ref) => {
     </Layer>
   );
 });
-

@@ -1,20 +1,26 @@
-import { forwardRef, useRef, useLayoutEffect, useEffect, useState } from "react";
-import Konva from "konva";
-import { Layer, Image, Text, Transformer } from "react-konva";
-import { KonvaEventObject } from "konva/lib/Node";
-import useImage from "use-image";
+import {
+  forwardRef,
+  useRef,
+  useLayoutEffect,
+  useEffect,
+  useState,
+} from 'react';
+import Konva from 'konva';
+import { Layer, Image, Text, Transformer } from 'react-konva';
+import { KonvaEventObject } from 'konva/lib/Node';
+import useImage from 'use-image';
 
 import { useAppSelector } from '@/hooks';
-import { DoodleTool, ImageReference } from "@/features/doodle";
-import { useCommandHistory } from "@/hooks/useCommandHistory";
-import { TransformCommand } from "@/utils/commands";
-import { getTransform } from "@/utils";
+import { useCommandHistory } from '@/hooks/useCommandHistory';
+import { TransformCommand } from '@/utils/commands';
+import { getTransform } from '@/utils';
+import { DoodleTool } from '@/features/doodle';
 
 export interface ReferenceProps {
-  reference: ImageReference
-  onChange: (props: any) => void
-  isSelected: boolean
-  onSelect: (evt: KonvaEventObject<Event>) => void
+  reference: ImageReference;
+  onChange: (props: any) => void;
+  isSelected: boolean;
+  onSelect: (evt: KonvaEventObject<Event>) => void;
 }
 
 const MINIMUM_RECT_SIZE = 5;
@@ -24,13 +30,19 @@ const MINIMUM_RECT_SIZE = 5;
  *
  * References can be TRS transformed around the canvas
  */
-export function Reference({ reference, isSelected, onSelect, onChange }: ReferenceProps) {
+export function Reference({
+  reference,
+  isSelected,
+  onSelect,
+  onChange,
+}: ReferenceProps) {
   const imageRef = useRef<Konva.Image>(null);
   const trRef = useRef<Konva.Transformer>(null);
   const [image] = useImage(reference.dataUri);
   const { push } = useCommandHistory();
 
   const tool = useAppSelector((s) => s.doodle.tool);
+  const activeLayer = useAppSelector((s) => s.doodle.activeLayer);
 
   // Transformer needs to be attached manually outside of React
   // Ref: https://konvajs.org/docs/react/Transformer.html
@@ -41,7 +53,9 @@ export function Reference({ reference, isSelected, onSelect, onChange }: Referen
     }
   }, [isSelected]);
 
-  const showTransformer = isSelected && tool === DoodleTool.References;
+  const showTransformer =
+    isSelected &&
+    (tool === DoodleTool.References || reference.layerId === activeLayer);
 
   const [from, setFrom] = useState<Transform>();
 
@@ -49,12 +63,11 @@ export function Reference({ reference, isSelected, onSelect, onChange }: Referen
     <>
       <Image
         image={image}
+        visible={!reference.hidden}
         onClick={onSelect}
         onTap={onSelect}
         ref={imageRef}
         draggable={showTransformer}
-        // {...reference}
-
         onDragStart={() => {
           const node = imageRef.current;
           if (!node) {
@@ -110,7 +123,10 @@ export function Reference({ reference, isSelected, onSelect, onChange }: Referen
           ref={trRef}
           keepRatio={false}
           boundBoxFunc={(oldBox, newBox) => {
-            if (newBox.width < MINIMUM_RECT_SIZE || newBox.height < MINIMUM_RECT_SIZE) {
+            if (
+              newBox.width < MINIMUM_RECT_SIZE ||
+              newBox.height < MINIMUM_RECT_SIZE
+            ) {
               return oldBox;
             }
             return newBox;

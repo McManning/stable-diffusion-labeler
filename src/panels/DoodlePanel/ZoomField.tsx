@@ -31,7 +31,7 @@ export function ZoomField() {
 
   return (
     <>
-    <Button variant="contained" onClick={onClick}>
+    <Button variant="outlined" onClick={onClick}>
       {Math.round(scale * 100)}%
     </Button>
 

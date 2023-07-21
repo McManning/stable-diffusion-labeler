@@ -9,6 +9,7 @@ import { Panel } from "@/components/Panel";
 import { HumanizedValue } from "@/components/HumanizeValue";
 import { updateSampler } from "@/features/generator";
 import { useAppSelector } from "@/hooks";
+import { ToggleField } from "@/components/ToggleField";
 
 export function SamplerPanel() {
   const sampler = useAppSelector((s) => s.generator.sampler);
@@ -42,13 +43,8 @@ export function SamplerPanel() {
             <MenuItem value="other">Something else</MenuItem>
           </SelectField>
 
-          <FormControlLabel
-            control={<Switch color="primary" />}
-            sx={{ minWidth: 140 }}
-            label="Use VAE"
-            labelPlacement="start"
-            {...register('useVAE')}
-          />
+          {/* VAE hot swapping isn't really supported. I just need to fix mine... */}
+          {/* <ToggleField name="useVAE" label="Use VAE" /> */}
         </Stack>
 
         <SliderField label="Sampling steps"
@@ -65,7 +61,7 @@ export function SamplerPanel() {
           max={30}
         />
 
-        <Stack direction="row" gap={4}>
+        {/* <Stack direction="row" gap={4}>
           <SliderField label="Width"
             name="width"
             step={64}
@@ -93,7 +89,7 @@ export function SamplerPanel() {
             min={1}
             max={8}
           />
-        </Stack>
+        </Stack> */}
 
         <Typography fontSize="small" my={2}>
           Canvas size is <strong>{settings.width} x {settings.height}</strong> for

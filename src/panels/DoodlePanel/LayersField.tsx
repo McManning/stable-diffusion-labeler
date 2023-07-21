@@ -1,4 +1,4 @@
-import { setLayers } from "@/features/doodle";
+import { setActiveLayer, setLayers } from "@/features/doodle";
 import { useAppSelector } from "@/hooks";
 import { Button, Popover, Slider, Stack, ToggleButton, Typography } from "@mui/material";
 import { Icon } from "@osuresearch/iconography";
@@ -6,9 +6,11 @@ import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 
 export function LayersField() {
-  const layers = useAppSelector((s) => s.doodle.layers);
-  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const layers = useAppSelector((s) => s.doodle.layers);
+  const activeLayer = useAppSelector((s) => s.doodle.activeLayer);
+
+  const dispatch = useDispatch();
 
   const anchorRef = useRef<HTMLButtonElement>(null);
 
@@ -36,7 +38,7 @@ export function LayersField() {
       <Button
         ref={anchorRef}
         aria-describedby="layers-popover"
-        variant="contained"
+        variant="outlined"
         onClick={() => setOpen(true)}
       >
         Layers
@@ -60,12 +62,22 @@ export function LayersField() {
             <div key={layer.id}>
               <Stack direction="row" gap={1} alignItems="center">
                 <ToggleButton
+                  aria-label="Visibility"
                   size="small"
                   value={layer.id}
                   selected={layer.visible}
                   onClick={toggleVisible}
                 >
                   <Icon name={layer.visible ? 'eye' : 'eyeSlash'} />
+                </ToggleButton>
+                <ToggleButton
+                  aria-label="Active"
+                  size="small"
+                  value={layer.id}
+                  selected={activeLayer === layer.id}
+                  onClick={() => dispatch(setActiveLayer(layer.id))}
+                >
+                  <Icon name={activeLayer === layer.id ? 'circleFill' : 'circle'} />
                 </ToggleButton>
                 {layer.id}
               </Stack>

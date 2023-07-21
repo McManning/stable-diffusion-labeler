@@ -1,5 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export type ToolSettings = {};
+
+export type PenSettings = ToolSettings & {
+  thickness: number;
+};
+
+export type EraserSettings = ToolSettings & {
+  thickness: number;
+};
+
 export enum DoodleTool {
   Pan = 'Pan',
   Mask = 'Masking',
@@ -9,68 +19,43 @@ export enum DoodleTool {
   Pen = 'Pen',
 }
 
-export type DoodleLayer = {
-  id: string
-  visible: boolean
-  opacity: number
-}
-
-export type ImageReference = {
-  id: string
-  filename: string
-  dataUri: string
-
-  x: number
-  y: number
-  width: number
-  height: number
-
-  naturalWidth: number
-  naturalHeight: number
-}
-
-export type ToolSettings = {
-
-}
-
-export type PenSettings = ToolSettings & {
-  thickness: number
-}
-
-export type EraserSettings = ToolSettings & {
-  thickness: number
-}
-
 type DoodleState = {
-  tool: DoodleTool
+  tool: DoodleTool;
 
   toolSettings: Record<DoodleTool, ToolSettings>;
 
-  isDrawing: boolean
+  isDrawing: boolean;
 
-  selectedId?: string
+  /** Selected `Konva.Node` id */
+  selectedId?: string;
 
-  width: number
-  height: number
+  width: number;
+  height: number;
 
-  imageWidth: number
-  imageHeight: number
+  imageWidth: number;
+  imageHeight: number;
 
-  boundaryWidth: number
-  boundaryHeight: number
+  boundaryWidth: number;
+  boundaryHeight: number;
 
-  scale: number
-  brightness: number
+  scale: number;
+  brightness: number;
 
-  regions: Region[]
+  regions: Region[];
 
-  references: ImageReference[]
+  references: ImageReference[];
 
-  /**
-   * Metadata associated with each layer
+  /** Metadata associated with each layer.
+   *
+   * Note that a `DoodleLayer` is not one to one with a `Konva.Layer`.
+   * Multiple `DoodleLayers` may exist within a single `Konva.Layer`
+   * to support composite blending or other draw optimizations.
    */
-  layers: DoodleLayer[]
-}
+  layers: DoodleLayer[];
+
+  /** Current layer (by ID) the user is interacting with */
+  activeLayer: string;
+};
 
 const initialState: DoodleState = {
   width: 0,
@@ -89,7 +74,7 @@ const initialState: DoodleState = {
       thickness: 4,
     },
     [DoodleTool.Eraser]: {
-      thickness: 4,
+      thickness: 16,
     },
     [DoodleTool.BoxCut]: {},
     [DoodleTool.Mask]: {},
@@ -102,23 +87,29 @@ const initialState: DoodleState = {
       id: 'Draw',
       visible: true,
       opacity: 1,
+      konvaLayerId: 'draw',
     },
     {
       id: 'Reference',
       visible: true,
       opacity: 1,
+      konvaLayerId: 'reference',
     },
     {
       id: 'Preprocess',
       visible: false,
-      opacity: 0.7,
+      opacity: 0.3,
+      konvaLayerId: 'generated',
     },
     {
       id: 'Preview',
       visible: true,
       opacity: 1,
-    }
+      konvaLayerId: 'generated',
+    },
   ],
+
+  activeLayer: 'Draw',
 
   isDrawing: false,
 
@@ -133,17 +124,26 @@ export const doodle = createSlice({
   name: 'doodle',
   initialState,
   reducers: {
-    setCanvasSize: (state, regions: PayloadAction<{ width: number, height: number }>) => {
+    setCanvasSize: (
+      state,
+      regions: PayloadAction<{ width: number; height: number }>
+    ) => {
       state.width = regions.payload.width;
       state.height = regions.payload.height;
     },
 
-    setImageSize: (state, regions: PayloadAction<{ width: number, height: number }>) => {
+    setImageSize: (
+      state,
+      regions: PayloadAction<{ width: number; height: number }>
+    ) => {
       state.imageWidth = regions.payload.width;
       state.imageHeight = regions.payload.height;
     },
 
-    setBoundarySize: (state, regions: PayloadAction<{ width: number, height: number }>) => {
+    setBoundarySize: (
+      state,
+      regions: PayloadAction<{ width: number; height: number }>
+    ) => {
       state.boundaryWidth = regions.payload.width;
       state.boundaryHeight = regions.payload.height;
     },
@@ -156,7 +156,7 @@ export const doodle = createSlice({
       state.layers = [...layers.payload];
     },
 
-    selectId: (state, id: PayloadAction<string|undefined>) => {
+    selectId: (state, id: PayloadAction<string | undefined>) => {
       state.selectedId = id.payload;
     },
 
@@ -172,13 +172,23 @@ export const doodle = createSlice({
       state.tool = mode.payload;
     },
 
-    setToolSettings: (state, settings: PayloadAction<{ tool: DoodleTool, partialSettings: Partial<ToolSettings> }>) => {
+    setToolSettings: (
+      state,
+      settings: PayloadAction<{
+        tool: DoodleTool;
+        partialSettings: Partial<ToolSettings>;
+      }>
+    ) => {
       const prev = state.toolSettings[settings.payload.tool];
 
       state.toolSettings[settings.payload.tool] = {
         ...prev,
-        ...settings.payload.partialSettings
+        ...settings.payload.partialSettings,
       };
+    },
+
+    setActiveLayer: (state, layer: PayloadAction<string>) => {
+      state.activeLayer = layer.payload;
     },
 
     setIsDrawing: (state, drawing: PayloadAction<boolean>) => {
@@ -190,15 +200,32 @@ export const doodle = createSlice({
     },
 
     addReference: (state, reference: PayloadAction<ImageReference>) => {
-      state.references = [...state.references, reference.payload];
+      const existing = state.references.find(
+        (r) => r.id === reference.payload.id
+      );
+
+      // If the reference was already loaded, just display again.
+      if (existing) {
+        state.references = state.references.map((r) => ({
+          ...r,
+          hidden: r.id === reference.payload.id ? false : r.hidden,
+        }));
+      } else {
+        state.references = [...state.references, reference.payload];
+      }
     },
 
     removeReference: (state, reference: PayloadAction<ImageReference>) => {
-      state.references = state.references.filter(
-        (r) => r.id !== reference.payload.id
-      );
+      state.references = state.references.map((r) => ({
+        ...r,
+        hidden: r.id === reference.payload.id ? true : r.hidden,
+      }));
+
+      if (state.selectedId === reference.payload.id) {
+        state.selectedId = undefined;
+      }
     },
-  }
+  },
 });
 
 export const {
@@ -213,6 +240,7 @@ export const {
   setIsDrawing,
   setTool,
   setToolSettings,
+  setActiveLayer,
   setReferences,
   addReference,
   removeReference,

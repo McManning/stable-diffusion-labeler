@@ -1,4 +1,7 @@
 import Konva from "konva";
+import { useAppSelector } from ".";
+import { useDispatch } from "react-redux";
+import { setActiveLayer } from "@/features/doodle";
 
 
 
@@ -6,6 +9,9 @@ import Konva from "konva";
  * Abstraction around manipulating the Doodle Konva stage
  */
 export function useDoodleStage() {
+  const activeLayer = useAppSelector((s) => s.doodle.activeLayer);
+  const layers = useAppSelector((s) => s.doodle.layers);
+  const dispatch = useDispatch();
 
   const getStage = () => {
     // Konva keeps a global reference of stages. We use that for identifying ours.
@@ -17,7 +23,7 @@ export function useDoodleStage() {
     return stage;
   }
 
-  const getLayerById = (id: string) => {
+  const getKonvaLayerById = (id: string) => {
     const layer = getStage().getLayers().find((l) => l.id() === id);
     if (!layer) {
       throw new Error(`Missing layer with id '${id}'`);
@@ -26,21 +32,53 @@ export function useDoodleStage() {
     return layer;
   }
 
+  // TODO: Export/import entire line batches. E.g. instead of importing from
+  // images, I can also just doodle right on the canvas, export that, and
+  // reimport in the same points data format (or SVG if I want to get fancy)
+
   return {
-    getLayerById,
-    clearDrawLayer: async () => {
-      const draw = getLayerById('draw');
-      const lines = draw.find('Line');
-      lines.forEach((line) => line.destroy());
+    getKonvaLayerById,
 
-      // TODO: Dumb cool animated version that eats away all the lines
+    getActiveLayer: () => {
+      const layer = layers.find((l) => l.id === activeLayer);
+      if (!layer) {
+        throw new Error(`Missing layer with id '${activeLayer}'`);
+      }
+      return layer;
     },
-    clearAllLayers: async () => {
 
+    /**
+     * Retrieve the `Konva.Layer` the active `DoodleLayer` is attached to
+     */
+    getActiveKonvaLayer: () => {
+      const layer = layers.find((l) => l.id === activeLayer);
+      if (!layer) {
+        throw new Error(`Missing layer with id '${activeLayer}'`);
+      }
+
+      return getKonvaLayerById(layer.konvaLayerId);
     },
+
+    /**
+     * Set the active `DoodleLayer` by ID.
+     *
+     * The active layer will receive user interactions,
+     * e.g. as the target for new reference images.
+     *
+     * @param id Known `DoodleLayer.id`
+     */
+    setActiveLayer: (id: string) => {
+      const layer = layers.find((l) => l.id === id);
+      if (!layer) {
+        throw new Error(`Unknown layer '${id}'`);
+      }
+
+      dispatch(setActiveLayer(id));
+    },
+
     exportDrawLayer: async (width: number, height: number) => {
       const stage = getStage();
-      const drawLayer = getLayerById('draw');
+      const drawLayer = getKonvaLayerById('draw');
 
       // Hide all layers that aren't the main drawing layer or
       // our background layer (ControlNet doesn't have alpha PNG support)
