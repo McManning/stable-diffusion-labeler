@@ -62,6 +62,19 @@ type Region = {
   points: Point[];
 };
 
+type Crop = {
+  id: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+
+  /** Source data URI of the crop, if cached */
+  dataUri?: string;
+
+  fixedSize?: boolean;
+};
+
 type Label = {
   id: number;
   text?: string;
@@ -214,4 +227,32 @@ type ImageReference = {
 
   naturalWidth: number;
   naturalHeight: number;
+};
+
+type ImageSearchResult = {
+  /** Image hit */
+  image: TrainingImage;
+
+  /**
+   * Tags in this image that match the search terms
+   */
+  tags: {
+    match: string;
+    replace?: string;
+  }[];
+};
+
+type ContextMenuOption = {
+  label: React.ReactNode;
+  accelerator?: string;
+  icon?: string;
+  action: (state: ContextMenuState) => void;
+};
+
+type ContextMenuState = {
+  position: Point;
+  context: string;
+  data?: any;
+
+  options: Array<ContextMenuOption | 'divider'>;
 };

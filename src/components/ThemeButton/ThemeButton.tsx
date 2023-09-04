@@ -1,23 +1,22 @@
-import { Button } from "@osuresearch/ui";
-
-declare global {
-  interface Window {
-    darkMode: {
-      toggle: () => void;
-      system: () => void;
-    }
-  }
-}
+import { Button } from '@mui/material';
 
 export function ThemeButton() {
   return (
     <>
-    <Button onPress={() => {
-      window.darkMode.toggle();
-    }}>Toggle dark mode</Button>
-    <Button onPress={() => {
-      window.darkMode.system();
-    }}>Toggle system mode</Button>
-</>
-  )
+      <Button
+        onClick={() => {
+          window.backend.toggleDarkMode();
+        }}
+      >
+        Toggle dark mode
+      </Button>
+      <Button
+        onClick={() => {
+          window.backend.activateSystemTheme();
+        }}
+      >
+        Toggle system mode
+      </Button>
+    </>
+  );
 }

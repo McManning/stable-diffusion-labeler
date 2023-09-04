@@ -1,7 +1,7 @@
-import { useDispatch } from "react-redux";
-import { useAppSelector } from ".";
-import { arraysEqual } from "@/utils";
-import { updateImage } from "@/features/workspace";
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from '.';
+import { arraysEqual } from '@/utils';
+import { updateImages } from '@/features/workspace';
 
 export function useActiveImage() {
   const activeImage = useAppSelector((s) => s.workspace.activeImage);
@@ -10,9 +10,7 @@ export function useActiveImage() {
   return {
     image: activeImage,
     setTags: (tags: string[]) => {
-      const cleaned = tags
-        .map((t) => t.trim())
-        .filter((t) => t.length);
+      const cleaned = tags.map((t) => t.trim()).filter((t) => t.length);
 
       if (!activeImage || arraysEqual(cleaned, activeImage.tags)) {
         return;
@@ -21,10 +19,10 @@ export function useActiveImage() {
       const updated: TrainingImage = {
         ...activeImage,
         tags: cleaned,
-      }
+      };
 
       console.log('save', updated);
-      dispatch(updateImage(updated))
-    }
-  }
+      dispatch(updateImages([updated]));
+    },
+  };
 }

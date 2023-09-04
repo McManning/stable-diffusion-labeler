@@ -1,12 +1,12 @@
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import { Controller, useFormContext } from "react-hook-form";
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Controller, useFormContext } from 'react-hook-form';
 
 export interface SelectFieldProps {
-  name: string
-  label: string
-  description?: React.ReactNode
+  name: string;
+  label: string;
+  description?: React.ReactNode;
 
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 /**
@@ -37,5 +37,5 @@ export function SelectField(props: SelectFieldProps) {
         </FormControl>
       )}
     />
-  )
+  );
 }

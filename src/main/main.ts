@@ -9,13 +9,13 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import fs from 'fs';
-import { app, BrowserWindow, shell, ipcMain, nativeTheme, dialog, protocol } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, protocol } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
-import { resolveHtmlPath, writeWorkspaceToDisk, addFolderImagesToWorkspace, readWorkspaceFromDisk, writeTagsToDisk, deleteImage } from './util';
-import { randomUUID } from 'crypto';
+import { resolveHtmlPath } from './util';
+import { SHARED_FUNCTIONS, createEventMapFromFuncs } from './events/shared';
+import settings from './settings';
 
 class AppUpdater {
   constructor() {
@@ -27,11 +27,11 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
+// ipcMain.on('ipc-example', async (event, arg) => {
+//   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
+//   console.log(msgTemplate(arg));
+//   event.reply('ipc-example', msgTemplate('pong'));
+// });
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -67,7 +67,8 @@ const createWindow = async () => {
     ? path.join(process.resourcesPath, 'assets')
     : path.join(__dirname, '../../assets');
 
-  const getAssetPath = (...paths: string[]): string => path.join(RESOURCES_PATH, ...paths);
+  const getAssetPath = (...paths: string[]): string =>
+    path.join(RESOURCES_PATH, ...paths);
 
   mainWindow = new BrowserWindow({
     show: false,
@@ -78,6 +79,10 @@ const createWindow = async () => {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
+      // Support node.js code in preload.
+      // This allows us to introduce a shared functions module
+      // that autowires IPC to call backend functions
+      nodeIntegration: true,
     },
   });
 
@@ -109,117 +114,13 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  // new AppUpdater();
 };
 
-ipcMain.handle('dark-mode:toggle', () => {
-  if (nativeTheme.shouldUseDarkColors) {
-    nativeTheme.themeSource = 'light';
-  } else {
-    nativeTheme.themeSource = 'dark';
-  }
-  return nativeTheme.shouldUseDarkColors;
-});
-
-ipcMain.handle('dark-mode:system', () => {
-  nativeTheme.themeSource = 'system';
-});
-
-ipcMain.handle('workspace:open', async () => {
-  const selection = await dialog.showOpenDialog({
-    filters: [
-      {
-        name: 'Labeling Workspace',
-        extensions: ['label-workspace'],
-      }
-    ],
-    properties: ['openFile']
-  });
-
-  if (!selection.filePaths.length) {
-    return undefined;
-  }
-
-  const workspace = readWorkspaceFromDisk(selection.filePaths[0]);
-
-  if (workspace) {
-    app.addRecentDocument(selection.filePaths[0]);
-  }
-
-  return workspace;
-});
-
-ipcMain.handle('workspace:save-as', async (event, workspace: Workspace) => {
-  if (!workspace) {
-    throw new Error('Expected workspace arg')
-  }
-
-  const selection = await dialog.showSaveDialog({
-    filters: [
-      {
-        name: 'Labeling Workspace',
-        extensions: ['label-workspace'],
-      }
-    ],
-  });
-
-  if (!selection.filePath) {
-    return workspace;
-  }
-
-  workspace.id = randomUUID();
-  workspace.path = selection.filePath;
-
-  writeWorkspaceToDisk(selection.filePath, workspace);
-
-  app.addRecentDocument(selection.filePath);
-
-  return workspace;
-});
-
-ipcMain.handle('workspace:add-folder', async (event, workspace: Workspace) => {
-  if (!workspace) {
-    throw new Error('Expected workspace arg')
-  }
-
-  const selection = await dialog.showOpenDialog({
-    properties: ['openDirectory']
-  });
-
-  if (selection.canceled || selection.filePaths.length < 1) {
-    return workspace;
-  }
-
-  return addFolderImagesToWorkspace(selection.filePaths[0], workspace);
-});
-
-ipcMain.handle('workspace:save', async (event, workspace: Workspace) => {
-  if (!workspace) {
-    throw new Error('Expected workspace arg')
-  }
-
-  // Hasn't been saved already yet. Ignore.
-  if (!workspace.path) {
-    return workspace;
-  }
-
-  writeWorkspaceToDisk(workspace.path, workspace);
-
-  app.addRecentDocument(workspace.path)
-  return workspace
-})
-
-ipcMain.handle('tags:generate', async (event, workspace: Workspace) => {
-  console.log('generate tags', workspace);
-})
-
-ipcMain.handle('image:save-tags', async (event, image: TrainingImage) => {
-  writeTagsToDisk(image);
-})
-
-ipcMain.handle('image:delete', async (event, image: TrainingImage) => {
-  deleteImage(image);
-})
+const handlers = createEventMapFromFuncs(SHARED_FUNCTIONS);
+for (const event in handlers) {
+  ipcMain.handle(event, handlers[event as keyof typeof handlers]);
+}
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
@@ -253,3 +154,30 @@ app
     });
   })
   .catch(console.log);
+
+// Setup Electron Store access to the frontend
+// Store.initRenderer();
+
+ipcMain.on('electron-store-get', async (event, val) => {
+  event.returnValue = settings.get(val);
+});
+
+ipcMain.on('electron-store-set', async (event, key, val) => {
+  settings.set(key, val);
+});
+
+ipcMain.on('toggle-full-screen', () => {
+  mainWindow?.setFullScreen(!mainWindow.isFullScreen());
+});
+
+ipcMain.on('exit', () => {
+  app.exit();
+});
+
+ipcMain.on('reload', () => {
+  mainWindow?.webContents.reload();
+});
+
+ipcMain.on('open-devtools', () => {
+  mainWindow?.webContents.toggleDevTools();
+});

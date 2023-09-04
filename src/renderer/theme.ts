@@ -1,4 +1,9 @@
-import { createTheme } from "@mui/material";
+import {
+  Shadows,
+  createTheme,
+  formLabelClasses,
+  outlinedInputClasses,
+} from '@mui/material';
 
 export const theme = createTheme({
   palette: {
@@ -22,7 +27,7 @@ export const theme = createTheme({
   },
   typography: {
     // fontSize: 12,
-    fontFamily: '\'Inter Variable\', sans-serif',
+    fontFamily: "'Inter Variable', sans-serif",
     button: {
       textTransform: 'initial',
     },
@@ -34,29 +39,29 @@ export const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          scrollbarColor: "#6b6b6b #2b2b2b",
-          "& *::-webkit-scrollbar": {
-            backgroundColor: "transparent",
+          scrollbarColor: '#6b6b6b #2b2b2b',
+          '& *::-webkit-scrollbar': {
+            backgroundColor: 'transparent',
             width: '12px',
           },
-          "& *::-webkit-scrollbar-thumb": {
-            backgroundColor: "#6b6b6b",
+          '& *::-webkit-scrollbar-thumb': {
+            backgroundColor: '#6b6b6b',
             minHeight: 24,
           },
-          "& *::-webkit-scrollbar-thumb:focus": {
-            backgroundColor: "#959595",
+          '& *::-webkit-scrollbar-thumb:focus': {
+            backgroundColor: '#959595',
           },
-          "& *::-webkit-scrollbar-thumb:active": {
-            backgroundColor: "#959595",
+          '& *::-webkit-scrollbar-thumb:active': {
+            backgroundColor: '#959595',
           },
-          "& *::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#959595",
+          '& *::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: '#959595',
           },
-          "& *::-webkit-scrollbar-corner": {
-            backgroundColor: "#2b2b2b",
+          '& *::-webkit-scrollbar-corner': {
+            backgroundColor: '#2b2b2b',
           },
-        }
-      }
+        },
+      },
     },
     MuiButtonBase: {
       defaultProps: {
@@ -68,18 +73,18 @@ export const theme = createTheme({
             outline: '2px solid green',
             outlineOffset: '2px',
           },
-        }
-      }
+        },
+      },
     },
     MuiButton: {
       defaultProps: {
         variant: 'contained',
-      }
+      },
     },
     MuiButtonGroup: {
       defaultProps: {
         disableRipple: true,
-      }
+      },
     },
     MuiTooltip: {
       styleOverrides: {
@@ -91,8 +96,8 @@ export const theme = createTheme({
         },
         arrow: {
           color: 'black',
-        }
-      }
+        },
+      },
     },
     MuiAppBar: {
       defaultProps: {
@@ -102,24 +107,24 @@ export const theme = createTheme({
         colorInherit: {
           backgroundColor: '#689f38',
           color: '#fff',
-        }
-      }
+        },
+      },
     },
     MuiLink: {
       defaultProps: {
-        underline: 'always'
-      }
+        underline: 'always',
+      },
     },
     MuiTabs: {
       defaultProps: {
         indicatorColor: 'primary',
-      }
+      },
     },
     MuiTextField: {
       defaultProps: {
         size: 'small',
         variant: 'outlined',
-      }
+      },
     },
-  }
+  },
 });

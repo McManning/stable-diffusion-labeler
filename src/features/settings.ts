@@ -3,23 +3,18 @@ import merge from 'lodash/merge';
 
 // import type { RootState } from '../store';
 
-export type ContextMenuState = {
-  position: Point
-  context: string
-  data?: any
-}
-
 export type SettingsState = {
-  contextMenu?: ContextMenuState
-  integrations: IntegrationSettings
+  contextMenu?: ContextMenuState;
+  integrations: IntegrationSettings;
 
-  maxGPUCanvasSize: number
-}
+  maxGPUCanvasSize: number;
+};
 
 const initialState: SettingsState = {
   integrations: {
     sdapi: 'http://localhost:7860/sdapi/v1',
-    booruApi: 'https://danbooru.donmai.us/autocomplete.json?search[type]=tag_query&version=1&limit=20&search[query]={terms}',
+    booruApi:
+      'https://danbooru.donmai.us/autocomplete.json?search[type]=tag_query&version=1&limit=20&search[query]={terms}',
   },
   maxGPUCanvasSize: 1280 * 1280,
 };
@@ -39,16 +34,16 @@ const settings = createSlice({
       state.contextMenu = undefined;
     },
 
-    updateIntegrations: (state, integrations: PayloadAction<IntegrationSettings>) => {
+    updateIntegrations: (
+      state,
+      integrations: PayloadAction<IntegrationSettings>
+    ) => {
       state.integrations = merge(state.integrations, integrations.payload);
     },
   },
 });
 
-export const {
-  openContextMenu,
-  closeContextMenu,
-  updateIntegrations,
-} = settings.actions;
+export const { openContextMenu, closeContextMenu, updateIntegrations } =
+  settings.actions;
 
 export const { reducer } = settings;

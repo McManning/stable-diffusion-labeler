@@ -1,7 +1,7 @@
-import { Stack, StackProps, styled } from "@mui/material";
+import { Stack, StackProps, styled } from '@mui/material';
 
 export interface PanelProps extends StackProps {
-  focused?: boolean
+  focused?: boolean;
 }
 
 export const Panel = styled(Stack)<PanelProps>(({ focused, theme }) => ({
@@ -9,5 +9,4 @@ export const Panel = styled(Stack)<PanelProps>(({ focused, theme }) => ({
   backgroundColor: theme.palette.background.paper,
   height: '100%',
   width: '100%',
-  padding: 16,
 }));

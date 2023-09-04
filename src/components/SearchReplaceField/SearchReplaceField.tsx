@@ -1,26 +1,38 @@
+import { ChangeEvent, useState } from 'react';
+import {
+  Box,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+  Stack,
+  TextField,
+  ToggleButton,
+} from '@mui/material';
+import { Icon } from '@osuresearch/iconography';
+import { useDispatch } from 'react-redux';
 
-import { ChangeEvent, useState } from "react";
-import { Box, FormControl, IconButton, InputAdornment, OutlinedInput, Stack, TextField, ToggleButton } from "@mui/material";
-import { Icon } from "@osuresearch/iconography";
-import { useDispatch } from "react-redux";
+import { useAppSelector } from '@/hooks';
+import { setReplaceFilter, setSearchFilter } from '@/features/workspace';
+import { useImageSearch } from '@/hooks/useImageSearch';
 
-import { useAppSelector } from "@/hooks";
-import { setReplaceFilter, setSearchFilter } from "@/features/workspace";
+export interface SearchReplaceFieldProps {}
 
-export interface SearchReplaceFieldProps {
-
-}
-
-export function SearchReplaceField({ }: SearchReplaceFieldProps) {
+export function SearchReplaceField({}: SearchReplaceFieldProps) {
   const search = useAppSelector((s) => s.workspace.search);
   const replace = useAppSelector((s) => s.workspace.replace);
   const dispatch = useDispatch();
 
+  const { applyReplace } = useImageSearch();
+
   const onToggleRegex = () => {
-    dispatch(setSearchFilter({
-      ...search, regex: !search.regex
-    }));
-  }
+    dispatch(
+      setSearchFilter({
+        ...search,
+        regex: !search.regex,
+      })
+    );
+  };
 
   const onSearchTerms = (e: ChangeEvent<HTMLInputElement>) => {
     const terms = e.currentTarget.value;
@@ -29,11 +41,13 @@ export function SearchReplaceField({ }: SearchReplaceFieldProps) {
     }
 
     // TODO: Throttle?
-    dispatch(setSearchFilter({
-      ...search,
-      terms
-    }));
-  }
+    dispatch(
+      setSearchFilter({
+        ...search,
+        terms,
+      })
+    );
+  };
 
   const onReplaceTerms = (e: ChangeEvent<HTMLInputElement>) => {
     const terms = e.currentTarget.value;
@@ -42,15 +56,21 @@ export function SearchReplaceField({ }: SearchReplaceFieldProps) {
     }
 
     // TODO: Throttle?
-    dispatch(setReplaceFilter({
-      ...replace,
-      terms
-    }));
-  }
+    dispatch(
+      setReplaceFilter({
+        ...replace,
+        terms,
+      })
+    );
+  };
 
   const onApplyReplace = () => {
-    alert('todo!')
-  }
+    if (
+      window.confirm('Are you sure you want to apply this change to all files?')
+    ) {
+      applyReplace();
+    }
+  };
 
   return (
     <Stack component="form" gap={1}>
@@ -100,5 +120,5 @@ export function SearchReplaceField({ }: SearchReplaceFieldProps) {
         </IconButton>
       </Stack>
     </Stack>
-  )
+  );
 }

@@ -1,31 +1,41 @@
-
 import React, { useRef } from 'react';
-import { Box, BoxProps, ButtonBase, Stack, Typography, alpha, styled } from '@mui/material';
-import Image from 'mui-image';
+import {
+  Box,
+  ButtonProps,
+  ButtonBase,
+  Stack,
+  Typography,
+  alpha,
+  styled,
+} from '@mui/material';
 
 import { useActiveImage } from '@/hooks/useActiveImage';
-import { useActiveWorkspace } from '@/hooks/useActiveWorkspace';
 import { useCanvasInteractions } from '@/hooks/useCanvasInteractions';
 import { Thumbnail } from '../Thumbnail';
-import { TagsDiff } from '../TagsDiff';
-import { setActiveImage } from '@/features/workspace';
+import {
+  addToSelection,
+  deleteImages,
+  setActiveImage,
+} from '@/features/workspace';
 import { useDispatch } from 'react-redux';
+import { useAppSelector } from '@/hooks';
+import { openContextMenu } from '@/features/settings';
 
 export interface ImageDetailsProps {
-  image: TrainingImage
+  image: TrainingImage;
 
   /** Fixed height of this item in a virtual list */
-  height: number
+  height: number;
 
   /**
    * Should the image display tag matches
    * against current search/replace filters
    */
-  isFiltered?: boolean
+  isFiltered?: boolean;
 }
 
-interface RootProps extends BoxProps {
-  isSelected?: boolean
+interface RootProps extends ButtonProps {
+  isSelected?: boolean;
 }
 
 const Root = styled(ButtonBase)<RootProps>(({ isSelected, theme }) => ({
@@ -40,16 +50,49 @@ const Root = styled(ButtonBase)<RootProps>(({ isSelected, theme }) => ({
 export function ImageDetails({ image, height, isFiltered }: ImageDetailsProps) {
   const { image: activeImage } = useActiveImage();
   const { setImage } = useCanvasInteractions();
-  const { search, replace } = useActiveWorkspace();
   const dispatch = useDispatch();
 
-  const onSelect = () => {
-    // TODO: Detect shift+click or ctrl+click selection mode.
+  const selectedImages = useAppSelector((s) => s.workspace.selected);
+
+  // TODO: Consolidate code. This is all duplicated with
+  // ImageThumb.
+
+  const onSelect = (e: React.MouseEvent) => {
+    // Multi-select mode
+    if (e.ctrlKey) {
+      dispatch(addToSelection([image]));
+      return;
+    }
+
     setImage(image);
     dispatch(setActiveImage(image));
-  }
+  };
 
-  const isSelected = activeImage?.id === image?.id;
+  const onDelete = () => {
+    dispatch(deleteImages([image]));
+  };
+
+  const onContextMenu: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    dispatch(
+      openContextMenu({
+        context: 'Edit Image',
+        position: {
+          x: e.clientX,
+          y: e.clientY,
+        },
+        options: [
+          { label: 'Delete', action: onDelete },
+          {
+            label: 'Reveal in File Explorer',
+            action: () => window.backend.revealFile(image.name),
+          },
+        ],
+      })
+    );
+  };
+
+  const isSelected =
+    selectedImages.find((s) => s.id === image.id) !== undefined;
 
   // TODO: Fetch naturalWidth/naturalHeight of the
   // underlying image after it's loaded.
@@ -57,26 +100,35 @@ export function ImageDetails({ image, height, isFiltered }: ImageDetailsProps) {
 
   return (
     <Box sx={{ height }}>
-      <Root type="button" onClick={onSelect} isSelected={isSelected}>
+      <Root
+        type="button"
+        onClick={onSelect}
+        onContextMenu={onContextMenu}
+        isSelected={isSelected}
+      >
         <Stack direction="row" gap={1}>
           <Thumbnail image={image} isSelected={isSelected} size={height - 4} />
 
           <Stack gap={0.5} mt={1}>
-            {isFiltered &&
-              <TagsDiff tags={image.tags} search={search} replace={replace} />
-            }
-            {!isFiltered &&
-              <Typography color={image.tags.length < 1 ? 'error' : 'text.primary'}>
+            {!isFiltered && (
+              <Typography
+                color={image.tags.length < 1 ? 'error' : 'text.primary'}
+              >
                 {image.tags.length} tags
               </Typography>
-            }
-
-            <Box whiteSpace="nowrap" fontSize="small" color="text.secondary" textOverflow="ellipsis">
-              1920&times;1080 &middot; {image.id}
+            )}
+            <Box
+              whiteSpace="nowrap"
+              fontSize="small"
+              color="text.secondary"
+              textOverflow="ellipsis"
+            >
+              {/* 1920&times;1080 &middot;  */}
+              {image.id}
             </Box>
           </Stack>
         </Stack>
       </Root>
     </Box>
-  )
+  );
 }

@@ -1,11 +1,6 @@
 /* eslint-disable class-methods-use-this */
 // eslint-disable-next-line max-classes-per-file
 import Konva from 'konva';
-import {
-  addReference,
-  removeReference,
-  setReferences,
-} from '@/features/doodle';
 import { store } from '@/store';
 import { getTransform } from '.';
 
@@ -62,50 +57,6 @@ export class EraseCommand implements ICommand {
 
   public toString() {
     return `Erase: layer=${this.layer.id()}, line=${this.line.id()}`;
-  }
-}
-
-export class AddReferenceCommand implements ICommand {
-  reference: ImageReference;
-
-  constructor(reference: ImageReference) {
-    this.reference = reference;
-  }
-
-  public execute() {
-    store.dispatch(addReference(this.reference));
-  }
-
-  public undo() {
-    store.dispatch(removeReference(this.reference));
-  }
-
-  public release() {}
-
-  public toString() {
-    return `Add Reference: ref=${this.reference.id}`;
-  }
-}
-
-export class RemoveReferenceCommand implements ICommand {
-  reference: ImageReference;
-
-  constructor(reference: ImageReference) {
-    this.reference = reference;
-  }
-
-  public execute() {
-    store.dispatch(removeReference(this.reference));
-  }
-
-  public undo() {
-    store.dispatch(addReference(this.reference));
-  }
-
-  public release() {}
-
-  public toString() {
-    return `Remove Reference: ref=${this.reference.id}`;
   }
 }
 

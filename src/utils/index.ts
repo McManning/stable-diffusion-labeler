@@ -1,7 +1,6 @@
-import { ImageReference } from "@/features/doodle";
-import { GeneratorState } from "@/features/generator";
-import { Color } from "@osuresearch/ui";
-import Konva from "konva";
+import { GeneratorState } from '@/features/generator';
+import { Color } from '@osuresearch/ui';
+import Konva from 'konva';
 
 /**
  * Match category ID to color
@@ -27,21 +26,16 @@ export function getBooruCategoryColor(category: number): Color {
 // 5 = meta = orange
 
 export function getBooruCategoryName(category: number) {
-  return [
-    'general',
-    'artist',
-    'general',
-    'copyright',
-    'character',
-    'meta',
-  ][category];
+  return ['general', 'artist', 'general', 'copyright', 'character', 'meta'][
+    category
+  ];
 }
 
 export function arraysEqual(a: any[], b: any[]) {
   if (a === b) return true;
   if (a.length !== b.length) return false;
 
-  for (let i = 0; i < a.length; i++) {
+  for (let i = 0; i < a.length; i += 1) {
     if (a[i] !== b[i]) return false;
   }
 
@@ -52,17 +46,21 @@ export function searchTags(search: ImageSearchFilter, tags: string[]) {
   const pattern = `.*${search.terms.split(' ').join('.*')}.*`;
   const re = new RegExp(pattern, 'gi');
 
-  return tags.find((tag) => tag.search(re) >= 0);
+  return tags.filter((tag) => tag.search(re) >= 0);
 }
 
 export function isMatch(image: TrainingImage, search: ImageSearchFilter) {
-  const hasTagMatches = search.terms.length > 0 && searchTags(search, image.tags) !== undefined;
+  const hasTagMatches =
+    search.terms.length > 0 && searchTags(search, image.tags) !== undefined;
   const hasUntaggedMatch = search.untagged && image.tags.length < 1;
 
   return hasUntaggedMatch || hasTagMatches;
 }
 
-export function filterBySearch(images: TrainingImage[], search: ImageSearchFilter) {
+export function filterBySearch(
+  images: TrainingImage[],
+  search: ImageSearchFilter
+) {
   return images.filter((img) => isMatch(img, search));
 }
 
@@ -100,17 +98,17 @@ export function createTxt2ImgPayload(
   const { prompt, sampler, controlNet, blend } = generator;
 
   // Blend together the blend prompts + user prompts
-  const positive = Object.values(blend.prompts)
-    .map((p) => blendPromptToPositiveTag(p))
-    .filter((p) => p.length)
-    .join(', ')
-    + prompt.positive;
+  const positive =
+    Object.values(blend.prompts)
+      .map((p) => blendPromptToPositiveTag(p))
+      .filter((p) => p.length)
+      .join(', ') + prompt.positive;
 
-  const negative = Object.values(blend.prompts)
-    .map((p) => blendPromptToNegativeTag(p))
-    .filter((p) => p.length)
-    .join(', ')
-    + prompt.negative;
+  const negative =
+    Object.values(blend.prompts)
+      .map((p) => blendPromptToNegativeTag(p))
+      .filter((p) => p.length)
+      .join(', ') + prompt.negative;
 
   return {
     // Prompt
@@ -146,7 +144,9 @@ export function createTxt2ImgPayload(
           {
             // Strip suffix from b64 encoded image
             // TODO: Move this logic elsewhere.
-            input_image: b64ControlNetImage.substring('data:image/png;base64,'.length),
+            input_image: b64ControlNetImage.substring(
+              'data:image/png;base64,'.length
+            ),
 
             // "module": "canny",
             // "model": "control_v11p_sd15_canny [d14c016b]",
@@ -158,17 +158,18 @@ export function createTxt2ImgPayload(
             guidance_end: controlNet.end,
             processor_res: 512, // Base Preprocessor Resolution. Defaults to 64
 
-            threshold_a: controlNet.model === 'scribble_xdog'
-              ? controlNet.xdogThreshold
-              : -1,
+            threshold_a:
+              controlNet.model === 'scribble_xdog'
+                ? controlNet.xdogThreshold
+                : -1,
 
             // // No cropping for resize. Drawing boundaries is the same as the sampler output.
             // resize_mode: 0,
-          }
-        ]
-      }
-    }
-  }
+          },
+        ],
+      },
+    },
+  };
 }
 
 export function getTransform(node: Konva.Node): Transform {
@@ -181,5 +182,5 @@ export function getTransform(node: Konva.Node): Transform {
     skewX,
     skewY,
     rotation,
-  }
+  };
 }

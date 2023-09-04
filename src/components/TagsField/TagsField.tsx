@@ -29,6 +29,7 @@ export interface TagsFieldProps {
   name: string;
   value?: string;
   onChange?: (value: string) => void;
+  allowDragDrop?: boolean;
 }
 
 const KeyCodes = {
@@ -154,7 +155,7 @@ function tagsToText(tags: Tag[]): string {
 }
 
 export function TagsField(props: TagsFieldProps) {
-  const { label, name, value, onChange } = props;
+  const { label, name, value, onChange, allowDragDrop } = props;
 
   const [focused, setFocused] = useState(false);
 
@@ -186,6 +187,10 @@ export function TagsField(props: TagsFieldProps) {
   };
 
   const handleDrag = (tag: Tag, currPos: number, newPos: number) => {
+    if (!allowDragDrop) {
+      return;
+    }
+
     const newTags = tags.slice();
 
     newTags.splice(currPos, 1);
@@ -236,6 +241,7 @@ export function TagsField(props: TagsFieldProps) {
         inline
         // @ts-ignore - type information is out of date.
         editable
+        allowDragDrop={allowDragDrop}
         onTagUpdate={handleTagUpdate}
       />
     </Tags>

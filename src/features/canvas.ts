@@ -6,27 +6,30 @@ export enum InteractionMode {
   BoxCut,
   Label,
   Erase,
+  Crop,
 }
 
 export type InteractionState = {
-  interaction: InteractionMode
-  isDrawing: boolean
-  editLabel?: Label
-  selectedId?: number
-}
+  interaction: InteractionMode;
+  isDrawing: boolean;
+  editLabel?: Label;
+  selectedId?: number; // DEPRECATED
+  selectedNodeId?: string;
+};
 
 type CanvasState = InteractionState & {
-  width: number
-  height: number
-  imageWidth: number
-  imageHeight: number
-  scale: number
-  brightness: number
+  width: number;
+  height: number;
+  imageWidth: number;
+  imageHeight: number;
+  scale: number;
+  brightness: number;
 
-  current?: TrainingImage
-  regions: Region[]
-  labels: Label[]
-}
+  current?: TrainingImage;
+  regions: Region[];
+  labels: Label[];
+  crops: Crop[];
+};
 
 const initialState: CanvasState = {
   width: 0,
@@ -41,6 +44,7 @@ const initialState: CanvasState = {
 
   labels: [],
   regions: [],
+  crops: [],
 };
 
 /**
@@ -52,23 +56,28 @@ export const canvas = createSlice({
   reducers: {
     setImage: (state, current: PayloadAction<TrainingImage | undefined>) => {
       state.current = current.payload;
-      // TODO: Image dimensions, etc.
 
       // Reset our state for this image
       state.regions = [];
       state.labels = [];
+      state.crops = [];
       state.scale = 1;
       state.selectedId = undefined;
       state.brightness = 0;
-      state.interaction = InteractionMode.Pan;
     },
 
-    setCanvasSize: (state, regions: PayloadAction<{ width: number, height: number }>) => {
+    setCanvasSize: (
+      state,
+      regions: PayloadAction<{ width: number; height: number }>
+    ) => {
       state.width = regions.payload.width;
       state.height = regions.payload.height;
     },
 
-    setImageSize: (state, regions: PayloadAction<{ width: number, height: number }>) => {
+    setImageSize: (
+      state,
+      regions: PayloadAction<{ width: number; height: number }>
+    ) => {
       state.imageWidth = regions.payload.width;
       state.imageHeight = regions.payload.height;
     },
@@ -81,8 +90,35 @@ export const canvas = createSlice({
       state.labels = labels.payload;
     },
 
-    selectId: (state, id: PayloadAction<number|undefined>) => {
+    setCrops: (state, crops: PayloadAction<Crop[]>) => {
+      state.crops = crops.payload;
+    },
+
+    createCrop: (state, crop: PayloadAction<Crop>) => {
+      state.crops = [...state.crops, crop.payload];
+    },
+
+    updateCrop: (state, crop: PayloadAction<Crop>) => {
+      state.crops = [
+        ...state.crops.filter((c) => c.id !== crop.payload.id),
+        crop.payload,
+      ];
+    },
+
+    deleteCrop: (state, crop: PayloadAction<Crop>) => {
+      state.crops = [...state.crops.filter((c) => c.id !== crop.payload.id)];
+
+      if (state.selectedNodeId === crop.payload.id) {
+        state.selectedNodeId = undefined;
+      }
+    },
+
+    selectId: (state, id: PayloadAction<number | undefined>) => {
       state.selectedId = id.payload;
+    },
+
+    selectNodeId: (state, id: PayloadAction<string | undefined>) => {
+      state.selectedNodeId = id.payload;
     },
 
     setScale: (state, scale: PayloadAction<number>) => {
@@ -104,7 +140,7 @@ export const canvas = createSlice({
     editLabel: (state, label: PayloadAction<Label | undefined>) => {
       state.editLabel = label.payload;
     },
-  }
+  },
 });
 
 export const {
@@ -113,7 +149,12 @@ export const {
   setImageSize,
   setRegions,
   setLabels,
+  setCrops,
   selectId,
+  createCrop,
+  updateCrop,
+  deleteCrop,
+  selectNodeId,
   setScale,
   setBrightness,
   setIsDrawing,

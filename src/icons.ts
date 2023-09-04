@@ -40,7 +40,7 @@ const icons: Record<string, any> = {
   images,
   pan,
   leftOutline,
-}
+};
 
 export function loadAllIcons() {
   Object.keys(icons).forEach((name) => {
